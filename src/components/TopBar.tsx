@@ -2,10 +2,10 @@ import React from 'react';
 import { useScheduleStore } from '../store/useScheduleStore';
 import { calculateDayBudget } from '../utils/timeMath';
 import { DayOfWeek } from '../types/schedule';
-import { Clock, RotateCcw, ShieldCheck } from 'lucide-react';
+import { Clock, RotateCcw, ShieldCheck, Database } from 'lucide-react';
 
 export const TopBar: React.FC = () => {
-  const { resetToDefaults, getResolvedItemsForDay } = useScheduleStore();
+  const { resetToDefaults, getResolvedItemsForDay, openDataModal } = useScheduleStore();
 
   const days: DayOfWeek[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   let totalWeekActiveTasks = 0;
@@ -63,6 +63,15 @@ export const TopBar: React.FC = () => {
             <ShieldCheck className="w-4 h-4 text-brand-link" />
             <span>IndexedDB Synced</span>
           </div>
+
+          <button
+            onClick={openDataModal}
+            title="Open Data & Backup Manager"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm border border-hairline bg-canvas hover:bg-canvas-soft-2 text-ink text-xs font-medium transition-colors shadow-level-1"
+          >
+            <Database className="w-3.5 h-3.5 text-brand-link" />
+            <span>Data & Backup</span>
+          </button>
 
           <button
             onClick={handleReset}

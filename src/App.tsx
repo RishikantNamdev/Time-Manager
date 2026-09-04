@@ -11,6 +11,7 @@ import { AnalyticsView } from './components/AnalyticsView';
 import { MasterRoutineView } from './components/MasterRoutineView';
 import { TaskModal } from './components/TaskModal';
 import { MasterRoutineModal } from './components/MasterRoutineModal';
+import { DataManagementModal } from './components/DataManagementModal';
 
 export const App: React.FC = () => {
   const { initializeStore, isInitialized, activeView } = useScheduleStore();
@@ -84,6 +85,7 @@ export const App: React.FC = () => {
       {/* Global Accessible Modal Dialogs */}
       <TaskModal />
       <MasterRoutineModal />
+      <DataManagementModal />
     </div>
   );
 };

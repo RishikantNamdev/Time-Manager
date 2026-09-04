@@ -35,6 +35,9 @@ interface ScheduleState {
   isRoutineModalOpen: boolean;
   editingRoutine: MasterRoutineItem | null;
 
+  // Data Management Modal State
+  isDataModalOpen: boolean;
+
   // Filter & Search State
   searchQuery: string;
   statusFilter: StatusFilter;
@@ -64,6 +67,14 @@ interface ScheduleState {
   addMasterRoutine: (routine: MasterRoutineItem) => void;
   updateMasterRoutine: (routine: MasterRoutineItem) => void;
   deleteMasterRoutine: (id: string) => void;
+
+  // Data Modal Actions
+  openDataModal: () => void;
+  closeDataModal: () => void;
+  importScheduleData: (
+    schedules: Record<DayOfWeek, DaySchedule>,
+    routines: MasterRoutineItem[]
+  ) => Promise<void>;
 
   // Filter Actions
   setSearchQuery: (query: string) => void;
@@ -135,6 +146,9 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
   // Master Routine Modal State
   isRoutineModalOpen: false,
   editingRoutine: null,
+
+  // Data Management Modal State
+  isDataModalOpen: false,
 
   // Filter & Search State
   searchQuery: '',
@@ -433,6 +447,28 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
     const updatedRoutines = state.masterRoutines.filter((r) => r.id !== id);
     setStore({ masterRoutines: updatedRoutines });
     saveToStorage(state.daySchedules, updatedRoutines, state.selectedDay, state.activeView);
+  },
+
+  // Data Modal Actions
+  openDataModal: () => {
+    setStore({ isDataModalOpen: true });
+  },
+
+  closeDataModal: () => {
+    setStore({ isDataModalOpen: false });
+  },
+
+  importScheduleData: async (
+    schedules: Record<DayOfWeek, DaySchedule>,
+    routines: MasterRoutineItem[]
+  ) => {
+    const state = getStore();
+    setStore({
+      daySchedules: schedules,
+      masterRoutines: routines,
+      isDataModalOpen: false,
+    });
+    await saveToStorage(schedules, routines, state.selectedDay, state.activeView);
   },
 
   // Filter Actions

@@ -1,0 +1,118 @@
+@import '@fontsource/geist-sans/400.css';
+@import '@fontsource/geist-sans/500.css';
+@import '@fontsource/geist-sans/600.css';
+@import '@fontsource/geist-mono/400.css';
+@import '@fontsource/geist-mono/500.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --canvas: #ffffff;
+    --canvas-soft: #fafafa;
+    --canvas-soft-2: #f5f5f5;
+    --ink: #171717;
+    --ink-body: #4d4d4d;
+    --ink-mute: #888888;
+    --hairline: #ebebeb;
+    --hairline-strong: #a1a1a1;
+  }
+
+  body {
+    background-color: #fafafa;
+    color: #171717;
+    font-family: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  /* Vercel-inspired Mesh Gradient from DESIGN.md */
+  .bg-mesh-header {
+    background: radial-gradient(at 10% 20%, rgba(80, 227, 194, 0.12) 0px, transparent 50%),
+                radial-gradient(at 90% 10%, rgba(0, 124, 240, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 90%, rgba(255, 0, 128, 0.08) 0px, transparent 50%),
+                radial-gradient(at 80% 80%, rgba(249, 203, 40, 0.08) 0px, transparent 50%);
+  }
+
+  /* Typography tokens */
+  .text-display-xl {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 48px;
+    letter-spacing: -2.4px;
+  }
+
+  .text-display-lg {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 40px;
+    letter-spacing: -1.28px;
+  }
+
+  .text-display-md {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 32px;
+    letter-spacing: -0.96px;
+  }
+
+  .text-display-sm {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 28px;
+    letter-spacing: -0.6px;
+  }
+
+  .text-body-md {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+  }
+
+  .text-body-sm {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: -0.28px;
+  }
+
+  .text-body-sm-strong {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: -0.28px;
+  }
+
+  .text-caption {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+  }
+
+  .text-caption-mono {
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+  }
+
+  .text-code {
+    font-family: 'Geist Mono', monospace;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 20px;
+  }
+}

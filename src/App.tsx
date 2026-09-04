@@ -1,12 +1,19 @@
 import React, { useEffect } from 'react';
 import { useScheduleStore } from './store/useScheduleStore';
 import { TopBar } from './components/TopBar';
+import { ViewNav } from './components/ViewNav';
 import { DaySelector } from './components/DaySelector';
 import { DayBudgetMetrics } from './components/DayBudgetMetrics';
-import { TimelinePlaceholder } from './components/TimelinePlaceholder';
+import { SearchFilterBar } from './components/SearchFilterBar';
+import { TimelineFeed } from './components/TimelineFeed';
+import { DaysOverviewView } from './components/DaysOverviewView';
+import { AnalyticsView } from './components/AnalyticsView';
+import { MasterRoutineView } from './components/MasterRoutineView';
+import { TaskModal } from './components/TaskModal';
+import { MasterRoutineModal } from './components/MasterRoutineModal';
 
 export const App: React.FC = () => {
-  const { initializeStore, isInitialized } = useScheduleStore();
+  const { initializeStore, isInitialized, activeView } = useScheduleStore();
 
   useEffect(() => {
     initializeStore();
@@ -30,14 +37,36 @@ export const App: React.FC = () => {
 
       {/* Main Content Body */}
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
-        {/* Day Selector Pill Row */}
-        <DaySelector />
+        {/* View Navigation Pill Tabs */}
+        <ViewNav />
 
-        {/* 24-Hour Day Budget Metrics Bar & Progress */}
-        <DayBudgetMetrics />
+        {/* View Routing */}
+        {activeView === 'daily' && (
+          <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-200">
+            <DaySelector />
+            <DayBudgetMetrics />
+            <SearchFilterBar />
+            <TimelineFeed />
+          </div>
+        )}
 
-        {/* Schedule Timeline Feed / Placeholder */}
-        <TimelinePlaceholder />
+        {activeView === 'week' && (
+          <div className="animate-in fade-in duration-200">
+            <DaysOverviewView />
+          </div>
+        )}
+
+        {activeView === 'analytics' && (
+          <div className="animate-in fade-in duration-200">
+            <AnalyticsView />
+          </div>
+        )}
+
+        {activeView === 'routines' && (
+          <div className="animate-in fade-in duration-200">
+            <MasterRoutineView />
+          </div>
+        )}
       </main>
 
       {/* Minimalist Engineered Footer */}
@@ -47,10 +76,14 @@ export const App: React.FC = () => {
           <div className="flex items-center gap-4">
             <span className="text-ink font-medium">1,440 Mins / Day</span>
             <span>•</span>
-            <span>Phase 1 Architecture Complete</span>
+            <span className="capitalize">{activeView} View Active</span>
           </div>
         </div>
       </footer>
+
+      {/* Global Accessible Modal Dialogs */}
+      <TaskModal />
+      <MasterRoutineModal />
     </div>
   );
 };

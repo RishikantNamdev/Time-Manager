@@ -13,14 +13,37 @@ import { parseTimeToMinutes } from '../utils/timeMath';
 const STORAGE_KEY_SCHEDULES = 'timetable_manager_day_schedules';
 const STORAGE_KEY_ROUTINES = 'timetable_manager_master_routines';
 const STORAGE_KEY_ACTIVE_DAY = 'timetable_manager_active_day';
+const STORAGE_KEY_ACTIVE_VIEW = 'timetable_manager_active_view';
+
+export type AppView = 'daily' | 'week' | 'analytics' | 'routines';
+export type StatusFilter = 'all' | 'active' | 'completed';
+export type PriorityFilter = 'all' | 'high' | 'medium' | 'low';
 
 interface ScheduleState {
+  activeView: AppView;
   selectedDay: DayOfWeek;
   daySchedules: Record<DayOfWeek, DaySchedule>;
   masterRoutines: MasterRoutineItem[];
   isInitialized: boolean;
 
-  // Actions
+  // Task Modal State
+  isModalOpen: boolean;
+  editingItem: ScheduleItem | null;
+  modalPrefill: Partial<ScheduleItem> | null;
+
+  // Master Routine Modal State
+  isRoutineModalOpen: boolean;
+  editingRoutine: MasterRoutineItem | null;
+
+  // Filter & Search State
+  searchQuery: string;
+  statusFilter: StatusFilter;
+  priorityFilter: PriorityFilter;
+
+  // View Navigation Action
+  setActiveView: (view: AppView) => void;
+
+  // Schedule Actions
   selectDay: (day: DayOfWeek) => void;
   toggleTaskCompletion: (id: string, day?: DayOfWeek) => void;
   addScheduleItem: (item: ScheduleItem, day?: DayOfWeek) => void;
@@ -28,6 +51,24 @@ interface ScheduleState {
   deleteScheduleItem: (id: string, day?: DayOfWeek) => void;
   resetToDefaults: () => Promise<void>;
   initializeStore: () => Promise<void>;
+
+  // Task Modal Actions
+  openCreateModal: (prefill?: Partial<ScheduleItem>) => void;
+  openEditModal: (item: ScheduleItem) => void;
+  closeModal: () => void;
+
+  // Master Routine Modal Actions
+  openCreateRoutineModal: () => void;
+  openEditRoutineModal: (routine: MasterRoutineItem) => void;
+  closeRoutineModal: () => void;
+  addMasterRoutine: (routine: MasterRoutineItem) => void;
+  updateMasterRoutine: (routine: MasterRoutineItem) => void;
+  deleteMasterRoutine: (id: string) => void;
+
+  // Filter Actions
+  setSearchQuery: (query: string) => void;
+  setStatusFilter: (status: StatusFilter) => void;
+  setPriorityFilter: (priority: PriorityFilter) => void;
 
   // Resolved Selectors
   getResolvedItemsForDay: (day: DayOfWeek) => ScheduleItem[];
@@ -56,16 +97,23 @@ function isRoutineApplicableToDay(routine: MasterRoutineItem, day: DayOfWeek): b
 }
 
 // Fallback persistence helper
-async function saveToStorage(schedules: Record<DayOfWeek, DaySchedule>, routines: MasterRoutineItem[], activeDay: DayOfWeek) {
+async function saveToStorage(
+  schedules: Record<DayOfWeek, DaySchedule>,
+  routines: MasterRoutineItem[],
+  activeDay: DayOfWeek,
+  activeView: AppView = 'daily'
+) {
   try {
     await set(STORAGE_KEY_SCHEDULES, schedules);
     await set(STORAGE_KEY_ROUTINES, routines);
     await set(STORAGE_KEY_ACTIVE_DAY, activeDay);
+    await set(STORAGE_KEY_ACTIVE_VIEW, activeView);
   } catch {
     try {
       localStorage.setItem(STORAGE_KEY_SCHEDULES, JSON.stringify(schedules));
       localStorage.setItem(STORAGE_KEY_ROUTINES, JSON.stringify(routines));
       localStorage.setItem(STORAGE_KEY_ACTIVE_DAY, activeDay);
+      localStorage.setItem(STORAGE_KEY_ACTIVE_VIEW, activeView);
     } catch {
       // LocalStorage fallback error ignored
     }
@@ -73,16 +121,32 @@ async function saveToStorage(schedules: Record<DayOfWeek, DaySchedule>, routines
 }
 
 export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
+  activeView: 'daily',
   selectedDay: getTodayDayOfWeek(),
   daySchedules: INITIAL_DAY_SCHEDULES,
   masterRoutines: INITIAL_MASTER_ROUTINES,
   isInitialized: false,
+
+  // Task Modal State
+  isModalOpen: false,
+  editingItem: null,
+  modalPrefill: null,
+
+  // Master Routine Modal State
+  isRoutineModalOpen: false,
+  editingRoutine: null,
+
+  // Filter & Search State
+  searchQuery: '',
+  statusFilter: 'all',
+  priorityFilter: 'all',
 
   initializeStore: async () => {
     try {
       let loadedSchedules = await get<Record<DayOfWeek, DaySchedule>>(STORAGE_KEY_SCHEDULES);
       let loadedRoutines = await get<MasterRoutineItem[]>(STORAGE_KEY_ROUTINES);
       let loadedDay = await get<DayOfWeek>(STORAGE_KEY_ACTIVE_DAY);
+      let loadedView = await get<AppView>(STORAGE_KEY_ACTIVE_VIEW);
 
       // Try LocalStorage if idb returned empty
       if (!loadedSchedules) {
@@ -97,11 +161,16 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
         const lsDay = localStorage.getItem(STORAGE_KEY_ACTIVE_DAY);
         if (lsDay) loadedDay = lsDay as DayOfWeek;
       }
+      if (!loadedView) {
+        const lsView = localStorage.getItem(STORAGE_KEY_ACTIVE_VIEW);
+        if (lsView) loadedView = lsView as AppView;
+      }
 
       setStore({
         daySchedules: loadedSchedules || INITIAL_DAY_SCHEDULES,
         masterRoutines: loadedRoutines || INITIAL_MASTER_ROUTINES,
         selectedDay: loadedDay || getTodayDayOfWeek(),
+        activeView: loadedView || 'daily',
         isInitialized: true,
       });
     } catch {
@@ -109,15 +178,22 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
         daySchedules: INITIAL_DAY_SCHEDULES,
         masterRoutines: INITIAL_MASTER_ROUTINES,
         selectedDay: getTodayDayOfWeek(),
+        activeView: 'daily',
         isInitialized: true,
       });
     }
   },
 
+  setActiveView: (view: AppView) => {
+    setStore({ activeView: view });
+    const { daySchedules, masterRoutines, selectedDay } = getStore();
+    saveToStorage(daySchedules, masterRoutines, selectedDay, view);
+  },
+
   selectDay: (day: DayOfWeek) => {
     setStore({ selectedDay: day });
-    const { daySchedules, masterRoutines } = getStore();
-    saveToStorage(daySchedules, masterRoutines, day);
+    const { daySchedules, masterRoutines, activeView } = getStore();
+    saveToStorage(daySchedules, masterRoutines, day, activeView);
   },
 
   toggleTaskCompletion: (id: string, targetDay?: DayOfWeek) => {
@@ -147,7 +223,7 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
         };
 
         setStore({ daySchedules: updatedSchedules });
-        saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay);
+        saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay, state.activeView);
         return;
       }
     }
@@ -156,9 +232,8 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
     const masterRoutine = state.masterRoutines.find((r) => r.id === id);
     if (masterRoutine && masterRoutine.type === 'task') {
       const existingOverride = (currentSchedule.overrides[id] || {}) as Partial<TaskItem>;
-      const currentCompleted = existingOverride.isCompleted !== undefined
-        ? existingOverride.isCompleted
-        : false;
+      const currentCompleted =
+        existingOverride.isCompleted !== undefined ? existingOverride.isCompleted : false;
 
       const updatedOverrides = {
         ...currentSchedule.overrides,
@@ -178,7 +253,7 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
       };
 
       setStore({ daySchedules: updatedSchedules });
-      saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay);
+      saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay, state.activeView);
     }
   },
 
@@ -197,7 +272,7 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
     };
 
     setStore({ daySchedules: updatedSchedules });
-    saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay);
+    saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay, state.activeView);
   },
 
   updateScheduleItem: (item: ScheduleItem, targetDay?: DayOfWeek) => {
@@ -220,7 +295,7 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
       };
 
       setStore({ daySchedules: updatedSchedules });
-      saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay);
+      saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay, state.activeView);
       return;
     }
 
@@ -241,7 +316,7 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
       };
 
       setStore({ daySchedules: updatedSchedules });
-      saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay);
+      saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay, state.activeView);
     }
   },
 
@@ -261,7 +336,7 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
         },
       };
       setStore({ daySchedules: updatedSchedules });
-      saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay);
+      saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay, state.activeView);
       return;
     }
 
@@ -277,7 +352,7 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
         },
       };
       setStore({ daySchedules: updatedSchedules });
-      saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay);
+      saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay, state.activeView);
     }
   },
 
@@ -287,8 +362,90 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
       daySchedules: INITIAL_DAY_SCHEDULES,
       masterRoutines: INITIAL_MASTER_ROUTINES,
       selectedDay: today,
+      activeView: 'daily',
     });
-    await saveToStorage(INITIAL_DAY_SCHEDULES, INITIAL_MASTER_ROUTINES, today);
+    await saveToStorage(INITIAL_DAY_SCHEDULES, INITIAL_MASTER_ROUTINES, today, 'daily');
+  },
+
+  // Task Modal Actions
+  openCreateModal: (prefill?: Partial<ScheduleItem>) => {
+    setStore({
+      isModalOpen: true,
+      editingItem: null,
+      modalPrefill: prefill || null,
+    });
+  },
+
+  openEditModal: (item: ScheduleItem) => {
+    setStore({
+      isModalOpen: true,
+      editingItem: item,
+      modalPrefill: null,
+    });
+  },
+
+  closeModal: () => {
+    setStore({
+      isModalOpen: false,
+      editingItem: null,
+      modalPrefill: null,
+    });
+  },
+
+  // Master Routine Actions
+  openCreateRoutineModal: () => {
+    setStore({
+      isRoutineModalOpen: true,
+      editingRoutine: null,
+    });
+  },
+
+  openEditRoutineModal: (routine: MasterRoutineItem) => {
+    setStore({
+      isRoutineModalOpen: true,
+      editingRoutine: routine,
+    });
+  },
+
+  closeRoutineModal: () => {
+    setStore({
+      isRoutineModalOpen: false,
+      editingRoutine: null,
+    });
+  },
+
+  addMasterRoutine: (routine: MasterRoutineItem) => {
+    const state = getStore();
+    const updatedRoutines = [...state.masterRoutines, routine];
+    setStore({ masterRoutines: updatedRoutines });
+    saveToStorage(state.daySchedules, updatedRoutines, state.selectedDay, state.activeView);
+  },
+
+  updateMasterRoutine: (routine: MasterRoutineItem) => {
+    const state = getStore();
+    const updatedRoutines = state.masterRoutines.map((r) => (r.id === routine.id ? routine : r));
+    setStore({ masterRoutines: updatedRoutines });
+    saveToStorage(state.daySchedules, updatedRoutines, state.selectedDay, state.activeView);
+  },
+
+  deleteMasterRoutine: (id: string) => {
+    const state = getStore();
+    const updatedRoutines = state.masterRoutines.filter((r) => r.id !== id);
+    setStore({ masterRoutines: updatedRoutines });
+    saveToStorage(state.daySchedules, updatedRoutines, state.selectedDay, state.activeView);
+  },
+
+  // Filter Actions
+  setSearchQuery: (query: string) => {
+    setStore({ searchQuery: query });
+  },
+
+  setStatusFilter: (status: StatusFilter) => {
+    setStore({ statusFilter: status });
+  },
+
+  setPriorityFilter: (priority: PriorityFilter) => {
+    setStore({ priorityFilter: priority });
   },
 
   getResolvedItemsForDay: (day: DayOfWeek): ScheduleItem[] => {

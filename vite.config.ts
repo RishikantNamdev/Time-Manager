@@ -4,6 +4,7 @@ import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: './', // Ensures relative asset resolution on GitHub Pages
   plugins: [react()],
   resolve: {
     alias: {

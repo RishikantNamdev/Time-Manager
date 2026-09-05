@@ -12,6 +12,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@vercel/speed-insights/next': '@vercel/speed-insights/react',
+      '@vercel/analytics/next': '@vercel/analytics/react',
     },
   },
   server: {

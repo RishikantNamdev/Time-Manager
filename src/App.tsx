@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useScheduleStore } from './store/useScheduleStore';
 import { TopBar } from './components/TopBar';
 import { ViewNav } from './components/ViewNav';
@@ -88,8 +89,9 @@ export const App: React.FC = () => {
       <MasterRoutineModal />
       <DataManagementModal />
 
-      {/* Vercel Web Analytics */}
+      {/* Vercel Web Analytics & Speed Insights */}
       <Analytics />
+      <SpeedInsights />
     </div>
   );
 };

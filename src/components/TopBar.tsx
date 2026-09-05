@@ -1,10 +1,12 @@
 import React from 'react';
 import { useScheduleStore } from '../store/useScheduleStore';
+import { useTheme } from '@/hooks/useTheme';
 import { calculateDayBudget } from '../utils/timeMath';
 import { DayOfWeek } from '../types/schedule';
-import { Clock, RotateCcw, ShieldCheck, Database } from 'lucide-react';
+import { Clock, RotateCcw, ShieldCheck, Database, Sun, Moon } from 'lucide-react';
 
 export const TopBar: React.FC = () => {
+  const { theme, toggleTheme } = useTheme();
   const { resetToDefaults, getResolvedItemsForDay, openDataModal } = useScheduleStore();
 
   const days: DayOfWeek[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
@@ -84,6 +86,16 @@ export const TopBar: React.FC = () => {
           >
             <RotateCcw className="w-3.5 h-3.5 text-ink-mute" />
             <span className="hidden xs:inline">Reset</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {theme === 'dark' ? <Sun className="w-5 h-5"/> : <Moon className="w-5 h-5"/>}
           </button>
         </div>
       </div>

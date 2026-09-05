@@ -254,52 +254,52 @@ export const AnalyticsView: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* High Priority */}
-          <div className="p-4 rounded-sm border border-rose-200 bg-rose-50/40 flex flex-col justify-between gap-2">
+          <div className="p-4 rounded-sm border border-rose-200 dark:border-rose-900/60 bg-rose-50/40 dark:bg-rose-950/30 flex flex-col justify-between gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-caption-mono text-rose-800 font-semibold uppercase">
+              <span className="text-caption-mono text-rose-800 dark:text-rose-300 font-semibold uppercase">
                 High Priority
               </span>
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
             </div>
-            <div className="font-mono text-2xl font-bold text-rose-950">
+            <div className="font-mono text-2xl font-bold text-rose-950 dark:text-rose-100">
               {priorityStats.high.count}{' '}
-              <span className="text-xs font-normal text-rose-700">tasks</span>
+              <span className="text-xs font-normal text-rose-700 dark:text-rose-300">tasks</span>
             </div>
-            <p className="font-mono text-xs text-rose-700">
+            <p className="font-mono text-xs text-rose-700 dark:text-rose-400">
               {formatDuration(priorityStats.high.minutes)} committed
             </p>
           </div>
 
           {/* Medium Priority */}
-          <div className="p-4 rounded-sm border border-amber-200 bg-amber-50/40 flex flex-col justify-between gap-2">
+          <div className="p-4 rounded-sm border border-amber-200 dark:border-amber-900/60 bg-amber-50/40 dark:bg-amber-950/30 flex flex-col justify-between gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-caption-mono text-amber-800 font-semibold uppercase">
+              <span className="text-caption-mono text-amber-800 dark:text-amber-300 font-semibold uppercase">
                 Medium Priority
               </span>
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
             </div>
-            <div className="font-mono text-2xl font-bold text-amber-950">
+            <div className="font-mono text-2xl font-bold text-amber-950 dark:text-amber-100">
               {priorityStats.medium.count}{' '}
-              <span className="text-xs font-normal text-amber-700">tasks</span>
+              <span className="text-xs font-normal text-amber-700 dark:text-amber-300">tasks</span>
             </div>
-            <p className="font-mono text-xs text-amber-700">
+            <p className="font-mono text-xs text-amber-700 dark:text-amber-400">
               {formatDuration(priorityStats.medium.minutes)} committed
             </p>
           </div>
 
           {/* Low Priority */}
-          <div className="p-4 rounded-sm border border-emerald-200 bg-emerald-50/40 flex flex-col justify-between gap-2">
+          <div className="p-4 rounded-sm border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/40 dark:bg-emerald-950/30 flex flex-col justify-between gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-caption-mono text-emerald-800 font-semibold uppercase">
+              <span className="text-caption-mono text-emerald-800 dark:text-emerald-300 font-semibold uppercase">
                 Low Priority
               </span>
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
             </div>
-            <div className="font-mono text-2xl font-bold text-emerald-950">
+            <div className="font-mono text-2xl font-bold text-emerald-950 dark:text-emerald-100">
               {priorityStats.low.count}{' '}
-              <span className="text-xs font-normal text-emerald-700">tasks</span>
+              <span className="text-xs font-normal text-emerald-700 dark:text-emerald-300">tasks</span>
             </div>
-            <p className="font-mono text-xs text-emerald-700">
+            <p className="font-mono text-xs text-emerald-700 dark:text-emerald-400">
               {formatDuration(priorityStats.low.minutes)} committed
             </p>
           </div>

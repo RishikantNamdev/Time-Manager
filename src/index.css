@@ -20,9 +20,20 @@
     --hairline-strong: #a1a1a1;
   }
 
+  .dark {
+    --canvas: #0f172a;
+    --canvas-soft: #020617;
+    --canvas-soft-2: #1e293b;
+    --ink: #f8fafc;
+    --ink-body: #cbd5e1;
+    --ink-mute: #94a3b8;
+    --hairline: #1e293b;
+    --hairline-strong: #334155;
+  }
+
   body {
-    background-color: #fafafa;
-    color: #171717;
+    background-color: var(--canvas-soft);
+    color: var(--ink);
     font-family: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     -webkit-font-smoothing: antialiased;

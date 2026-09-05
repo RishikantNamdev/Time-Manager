@@ -120,23 +120,23 @@ export const DataManagementModal: React.FC = () => {
         role="dialog"
         aria-modal="true"
         aria-labelledby="data-modal-title"
-        className="bg-canvas border border-hairline rounded-lg shadow-level-5 p-6 max-w-md w-full text-ink flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
+        className="bg-canvas dark:bg-slate-900 border border-hairline dark:border-slate-800 rounded-lg shadow-level-5 p-6 max-w-md w-full text-ink dark:text-slate-100 flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-hairline pb-4">
+        <div className="flex items-center justify-between border-b border-hairline dark:border-slate-800 pb-4">
           <div>
-            <h2 id="data-modal-title" className="text-display-sm font-semibold tracking-tight-sm text-ink flex items-center gap-2">
+            <h2 id="data-modal-title" className="text-display-sm font-semibold tracking-tight-sm text-ink dark:text-slate-100 flex items-center gap-2">
               <FileJson className="w-5 h-5 text-brand-link" />
               <span>Data & Backup</span>
             </h2>
-            <p className="text-caption text-ink-mute mt-0.5">
+            <p className="text-caption text-ink-mute dark:text-slate-400 mt-0.5">
               Export, import, and manage offline data portability.
             </p>
           </div>
 
           <button
             onClick={closeDataModal}
-            className="w-8 h-8 rounded-sm flex items-center justify-center text-ink-mute hover:text-ink hover:bg-canvas-soft-2 transition-colors"
+            className="w-8 h-8 rounded-sm flex items-center justify-center text-ink-mute dark:text-slate-400 hover:text-ink dark:hover:text-white hover:bg-canvas-soft-2 dark:hover:bg-slate-800 transition-colors"
             title="Close dialog (Esc)"
           >
             <X className="w-4 h-4" />
@@ -163,20 +163,20 @@ export const DataManagementModal: React.FC = () => {
         )}
 
         {/* Section 1: Export Backup */}
-        <div className="p-4 rounded-md bg-canvas-soft border border-hairline space-y-2.5">
+        <div className="p-4 rounded-md bg-canvas-soft dark:bg-slate-950 border border-hairline dark:border-slate-800 space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-caption-mono text-ink-body font-semibold uppercase tracking-wider">
+            <span className="text-caption-mono text-ink-body dark:text-slate-300 font-semibold uppercase tracking-wider">
               Export Backup File
             </span>
-            <span className="text-caption-mono text-ink-mute">.json format</span>
+            <span className="text-caption-mono text-ink-mute dark:text-slate-500">.json format</span>
           </div>
-          <p className="text-xs text-ink-mute leading-relaxed">
+          <p className="text-xs text-ink-mute dark:text-slate-400 leading-relaxed">
             Download a formatted JSON snapshot of all 7-day schedules, tasks, overrides, and master routines.
           </p>
           <button
             type="button"
             onClick={handleExport}
-            className="w-full py-2 px-3.5 rounded-sm border border-hairline bg-canvas hover:bg-canvas-soft-2 text-ink text-xs font-medium transition-colors shadow-level-1 flex items-center justify-center gap-2"
+            className="w-full py-2 px-3.5 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-900 hover:bg-canvas-soft-2 dark:hover:bg-slate-800 text-ink dark:text-slate-200 text-xs font-medium transition-colors shadow-level-1 flex items-center justify-center gap-2"
           >
             <Download className="w-3.5 h-3.5 text-brand-link" />
             <span>Download timetable-backup.json</span>
@@ -184,23 +184,23 @@ export const DataManagementModal: React.FC = () => {
         </div>
 
         {/* Section 2: Import / Restore */}
-        <div className="p-4 rounded-md bg-canvas-soft border border-hairline space-y-2.5">
+        <div className="p-4 rounded-md bg-canvas-soft dark:bg-slate-950 border border-hairline dark:border-slate-800 space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-caption-mono text-ink-body font-semibold uppercase tracking-wider">
+            <span className="text-caption-mono text-ink-body dark:text-slate-300 font-semibold uppercase tracking-wider">
               Restore from Backup
             </span>
-            <span className="text-caption-mono text-emerald-600 font-semibold flex items-center gap-1">
+            <span className="text-caption-mono text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" />
               Validated
             </span>
           </div>
-          <p className="text-xs text-ink-mute leading-relaxed">
+          <p className="text-xs text-ink-mute dark:text-slate-400 leading-relaxed">
             Upload a previously exported backup file to restore complete schedule state.
           </p>
 
           <label
             htmlFor="backup-file-upload"
-            className="w-full py-3 px-3.5 rounded-sm border border-dashed border-hairline-strong hover:border-ink bg-canvas text-center cursor-pointer transition-colors block group"
+            className="w-full py-3 px-3.5 rounded-sm border border-dashed border-hairline-strong dark:border-slate-700 hover:border-ink dark:hover:border-slate-400 bg-canvas dark:bg-slate-900 text-center cursor-pointer transition-colors block group"
           >
             <input
               id="backup-file-upload"
@@ -211,11 +211,11 @@ export const DataManagementModal: React.FC = () => {
               className="sr-only"
             />
             <div className="flex flex-col items-center gap-1.5">
-              <Upload className="w-4 h-4 text-ink-mute group-hover:text-ink transition-colors" />
-              <span className="text-xs font-medium text-ink-body group-hover:text-ink">
+              <Upload className="w-4 h-4 text-ink-mute dark:text-slate-400 group-hover:text-ink dark:group-hover:text-white transition-colors" />
+              <span className="text-xs font-medium text-ink-body dark:text-slate-300 group-hover:text-ink dark:group-hover:text-white">
                 Click to browse or drop backup JSON
               </span>
-              <span className="text-[10px] font-mono text-ink-mute">
+              <span className="text-[10px] font-mono text-ink-mute dark:text-slate-500">
                 Must match Section 7 schema
               </span>
             </div>
@@ -223,17 +223,17 @@ export const DataManagementModal: React.FC = () => {
         </div>
 
         {/* Section 3: Destructive Reset */}
-        <div className="p-4 rounded-md bg-canvas-soft border border-hairline space-y-2.5">
+        <div className="p-4 rounded-md bg-canvas-soft dark:bg-slate-950 border border-hairline dark:border-slate-800 space-y-2.5">
           <span className="text-caption-mono text-brand-error font-semibold uppercase tracking-wider block">
             Reset to Blank Schedule
           </span>
-          <p className="text-xs text-ink-mute leading-relaxed">
+          <p className="text-xs text-ink-mute dark:text-slate-400 leading-relaxed">
             Clear all scheduled tasks, breaks, and routines across all 7 days to start fresh.
           </p>
 
           {isConfirmingReset ? (
-            <div className="p-3 rounded-sm bg-rose-50 border border-rose-200 space-y-2">
-              <span className="text-xs font-semibold text-rose-800 block">
+            <div className="p-3 rounded-sm bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 space-y-2">
+              <span className="text-xs font-semibold text-rose-800 dark:text-rose-200 block">
                 Are you sure you want to clear all tasks and routines? This will reset your entire schedule to a clean slate.
               </span>
               <div className="flex items-center gap-2">
@@ -247,7 +247,7 @@ export const DataManagementModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsConfirmingReset(false)}
-                  className="px-3 py-1.5 rounded-sm border border-hairline bg-canvas hover:bg-canvas-soft-2 text-ink text-xs font-medium"
+                  className="px-3 py-1.5 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-900 hover:bg-canvas-soft-2 dark:hover:bg-slate-800 text-ink dark:text-slate-200 text-xs font-medium"
                 >
                   Cancel
                 </button>
@@ -257,7 +257,7 @@ export const DataManagementModal: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsConfirmingReset(true)}
-              className="w-full py-2 px-3.5 rounded-sm border border-rose-200 bg-canvas hover:bg-rose-50/50 text-brand-error text-xs font-medium transition-colors shadow-level-1 flex items-center justify-center gap-2"
+              className="w-full py-2 px-3.5 rounded-sm border border-rose-200 dark:border-rose-900/50 bg-canvas dark:bg-slate-900 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 text-brand-error text-xs font-medium transition-colors shadow-level-1 flex items-center justify-center gap-2"
             >
               <RotateCcw className="w-3.5 h-3.5 text-brand-error" />
               <span>Clear All Tasks & Reset</span>
@@ -266,11 +266,11 @@ export const DataManagementModal: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="pt-2 border-t border-hairline flex justify-end">
+        <div className="pt-2 border-t border-hairline dark:border-slate-800 flex justify-end">
           <button
             type="button"
             onClick={closeDataModal}
-            className="px-4 py-2 rounded-sm border border-hairline bg-canvas hover:bg-canvas-soft-2 text-ink text-xs font-medium transition-colors shadow-level-1"
+            className="px-4 py-2 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-900 hover:bg-canvas-soft-2 dark:hover:bg-slate-800 text-ink dark:text-slate-200 text-xs font-medium transition-colors shadow-level-1"
           >
             Done
           </button>

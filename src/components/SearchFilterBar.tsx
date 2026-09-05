@@ -28,16 +28,16 @@ export const SearchFilterBar: React.FC = () => {
   ];
 
   return (
-    <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-3 bg-canvas border border-hairline rounded-md p-3 shadow-level-1">
+    <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-3 bg-canvas dark:bg-slate-900 border border-hairline dark:border-slate-800 rounded-md p-3 shadow-level-1">
       {/* Left: Search Input */}
       <div className="relative flex-1 min-w-[200px]">
-        <Search className="w-4 h-4 text-ink-mute absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-ink-mute dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search by title or description..."
-          className="w-full h-9 pl-9 pr-8 rounded-sm border border-hairline bg-canvas-soft text-body-sm text-ink placeholder:text-ink-mute focus:outline-none focus:border-ink focus:bg-canvas transition-colors"
+          className="w-full h-9 pl-9 pr-8 rounded-sm border border-hairline dark:border-slate-700 bg-canvas-soft dark:bg-slate-800 text-body-sm text-ink dark:text-white placeholder:text-ink-mute dark:placeholder:text-slate-400 focus:outline-none focus:border-ink dark:focus:border-slate-500 focus:bg-canvas dark:focus:bg-slate-800 transition-colors"
         />
         {searchQuery && (
           <button
@@ -54,17 +54,17 @@ export const SearchFilterBar: React.FC = () => {
       {/* Middle & Right: Filters & Add CTA */}
       <div className="flex flex-wrap items-center justify-between md:justify-end gap-2.5">
         {/* Status Filter Pill Group */}
-        <div className="flex items-center p-0.5 rounded-sm bg-canvas-soft-2 border border-hairline">
+        <div className="flex items-center p-0.5 rounded-sm bg-canvas-soft-2 dark:bg-slate-800 border border-hairline dark:border-slate-700">
           {statusOptions.map(({ key, label }) => (
             <button
               key={key}
               type="button"
               onClick={() => setStatusFilter(key)}
               className={clsx(
-                'px-2.5 py-1 text-xs font-mono font-medium rounded-xs transition-all',
+                'px-2.5 py-1 text-xs font-medium rounded-xs transition-colors',
                 statusFilter === key
-                  ? 'bg-canvas text-ink shadow-level-1'
-                  : 'text-ink-mute hover:text-ink'
+                  ? 'bg-canvas dark:bg-slate-900 text-ink dark:text-white shadow-level-1'
+                  : 'text-ink-mute dark:text-slate-400 hover:text-ink dark:hover:text-slate-200'
               )}
             >
               {label}
@@ -74,10 +74,10 @@ export const SearchFilterBar: React.FC = () => {
 
         {/* Priority Filter Pill Group */}
         <div className="flex items-center gap-1">
-          <span className="hidden xl:inline text-caption-mono text-ink-mute text-[11px] uppercase mr-1">
+          <span className="hidden xl:inline text-caption-mono text-ink-mute dark:text-slate-400 text-[11px] uppercase mr-1">
             Priority:
           </span>
-          <div className="flex items-center p-0.5 rounded-sm bg-canvas-soft-2 border border-hairline">
+          <div className="flex items-center p-0.5 rounded-sm bg-canvas-soft-2 dark:bg-slate-800 border border-hairline dark:border-slate-700">
             {priorityOptions.map(({ key, label }) => (
               <button
                 key={key}

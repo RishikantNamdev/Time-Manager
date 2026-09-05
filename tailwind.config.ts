@@ -1,19 +1,20 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
-        canvas: '#ffffff',
-        'canvas-soft': '#fafafa',
-        'canvas-soft-2': '#f5f5f5',
-        ink: '#171717',
-        'ink-body': '#4d4d4d',
-        'ink-mute': '#888888',
+        canvas: 'var(--canvas, #ffffff)',
+        'canvas-soft': 'var(--canvas-soft, #fafafa)',
+        'canvas-soft-2': 'var(--canvas-soft-2, #f5f5f5)',
+        ink: 'var(--ink, #171717)',
+        'ink-body': 'var(--ink-body, #4d4d4d)',
+        'ink-mute': 'var(--ink-mute, #888888)',
         'on-primary': '#ffffff',
-        hairline: '#ebebeb',
-        'hairline-strong': '#a1a1a1',
+        hairline: 'var(--hairline, #ebebeb)',
+        'hairline-strong': 'var(--hairline-strong, #a1a1a1)',
         'brand-link': '#0070f3',
         'brand-link-deep': '#0761d1',
         'brand-error': '#ee0000',

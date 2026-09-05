@@ -21,7 +21,7 @@ export const ViewNav: React.FC = () => {
 
   return (
     <nav aria-label="Main view navigation" className="w-full flex justify-center">
-      <div className="flex items-center gap-1 p-1 rounded-pill-sm bg-canvas border border-hairline shadow-level-1 overflow-x-auto max-w-full">
+      <div className="flex items-center gap-1 p-1 rounded-pill-sm bg-canvas dark:bg-slate-900 border border-hairline dark:border-slate-800 shadow-level-1 overflow-x-auto max-w-full">
         {TABS.map(({ id, label, icon: Icon }) => {
           const isActive = activeView === id;
 
@@ -33,11 +33,11 @@ export const ViewNav: React.FC = () => {
               className={clsx(
                 'h-8 px-3.5 rounded-pill-sm text-xs sm:text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap select-none',
                 isActive
-                  ? 'bg-ink text-on-primary shadow-level-1'
-                  : 'text-ink-body hover:text-ink hover:bg-canvas-soft-2'
+                  ? 'bg-ink dark:bg-slate-100 text-on-primary dark:text-slate-950 shadow-level-1'
+                  : 'text-ink-body dark:text-slate-400 hover:text-ink dark:hover:text-slate-100 hover:bg-canvas-soft-2 dark:hover:bg-slate-800'
               )}
             >
-              <Icon className={clsx('w-3.5 h-3.5', isActive ? 'text-white' : 'text-ink-mute')} />
+              <Icon className={clsx('w-3.5 h-3.5', isActive ? 'text-white dark:text-slate-950' : 'text-ink-mute dark:text-slate-400')} />
               <span>{label}</span>
             </button>
           );

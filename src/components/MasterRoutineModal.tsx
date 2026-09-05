@@ -163,22 +163,22 @@ export const MasterRoutineModal: React.FC = () => {
         role="dialog"
         aria-modal="true"
         aria-labelledby="routine-modal-title"
-        className="bg-canvas border border-hairline rounded-lg shadow-level-5 p-6 max-w-lg w-full text-ink flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
+        className="bg-canvas dark:bg-slate-900 border border-hairline dark:border-slate-800 rounded-lg shadow-level-5 p-6 max-w-lg w-full text-ink dark:text-slate-100 flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-hairline pb-4">
+        <div className="flex items-center justify-between border-b border-hairline dark:border-slate-800 pb-4">
           <div>
-            <h2 id="routine-modal-title" className="text-display-sm font-semibold tracking-tight-sm text-ink">
+            <h2 id="routine-modal-title" className="text-display-sm font-semibold tracking-tight-sm text-ink dark:text-slate-100">
               {editingRoutine ? 'Edit Master Routine' : 'New Master Routine'}
             </h2>
-            <p className="text-caption text-ink-mute mt-0.5">
+            <p className="text-caption text-ink-mute dark:text-slate-400 mt-0.5">
               Global recurring habit or baseline rest block inherited across all days.
             </p>
           </div>
 
           <button
             onClick={closeRoutineModal}
-            className="w-8 h-8 rounded-sm flex items-center justify-center text-ink-mute hover:text-ink hover:bg-canvas-soft-2 transition-colors"
+            className="w-8 h-8 rounded-sm flex items-center justify-center text-ink-mute dark:text-slate-400 hover:text-ink dark:hover:text-white hover:bg-canvas-soft-2 dark:hover:bg-slate-800 transition-colors"
             title="Close dialog (Esc)"
           >
             <X className="w-4 h-4" />
@@ -186,7 +186,7 @@ export const MasterRoutineModal: React.FC = () => {
         </div>
 
         {/* Mode Segmented Pill */}
-        <div className="flex p-1 rounded-sm bg-canvas-soft-2 border border-hairline">
+        <div className="flex p-1 rounded-sm bg-canvas-soft-2 dark:bg-slate-800 border border-hairline dark:border-slate-700">
           <button
             type="button"
             onClick={() => {
@@ -195,7 +195,7 @@ export const MasterRoutineModal: React.FC = () => {
             }}
             className={clsx(
               'flex-1 py-1.5 text-xs font-semibold rounded-xs transition-all tracking-wider uppercase',
-              type === 'task' ? 'bg-canvas text-ink shadow-level-1' : 'text-ink-mute hover:text-ink'
+              type === 'task' ? 'bg-canvas dark:bg-slate-900 text-ink dark:text-slate-100 shadow-level-1' : 'text-ink-mute hover:text-ink'
             )}
           >
             Routine Task / Habit
@@ -208,7 +208,7 @@ export const MasterRoutineModal: React.FC = () => {
             }}
             className={clsx(
               'flex-1 py-1.5 text-xs font-semibold rounded-xs transition-all tracking-wider uppercase',
-              type === 'break' ? 'bg-canvas text-ink shadow-level-1' : 'text-ink-mute hover:text-ink'
+              type === 'break' ? 'bg-canvas dark:bg-slate-900 text-ink dark:text-slate-100 shadow-level-1' : 'text-ink-mute hover:text-ink'
             )}
           >
             Recurring Rest Block
@@ -237,12 +237,12 @@ export const MasterRoutineModal: React.FC = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Morning Routine, Daily Review, Sleep..."
-              className="h-10 px-3 rounded-sm border border-hairline bg-canvas text-body-sm text-ink placeholder:text-ink-mute focus:outline-none focus:border-ink transition-colors"
+              className="h-10 px-3 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-body-sm text-ink dark:text-white placeholder:text-ink-mute dark:placeholder:text-slate-400 focus:outline-none focus:border-ink dark:focus:border-slate-500 transition-colors"
             />
           </div>
 
           {/* Recurrence Rule */}
-          <div className="flex flex-col gap-1.5 p-3 rounded-md bg-canvas-soft border border-hairline">
+          <div className="flex flex-col gap-1.5 p-3 rounded-md bg-canvas-soft dark:bg-slate-800/40 border border-hairline dark:border-slate-800">
             <label className="text-caption-mono text-ink-body font-medium uppercase">
               Recurrence Pattern
             </label>
@@ -255,8 +255,8 @@ export const MasterRoutineModal: React.FC = () => {
                   className={clsx(
                     'py-1.5 text-xs font-mono font-medium rounded-xs border capitalize transition-all',
                     recurrence === rec
-                      ? 'bg-ink text-on-primary border-ink shadow-level-1'
-                      : 'bg-canvas border-hairline text-ink-mute hover:text-ink'
+                      ? 'bg-ink dark:bg-slate-100 text-on-primary dark:text-slate-900 border-ink dark:border-slate-100 shadow-level-1'
+                      : 'bg-canvas dark:bg-slate-800 border-hairline dark:border-slate-700 text-ink-mute dark:text-slate-300 hover:text-ink dark:hover:text-white'
                   )}
                 >
                   {rec}
@@ -266,8 +266,8 @@ export const MasterRoutineModal: React.FC = () => {
 
             {/* Custom Day Selectors */}
             {recurrence === 'custom' && (
-              <div className="mt-2 pt-2 border-t border-hairline">
-                <span className="text-[11px] font-mono text-ink-mute block mb-1.5">
+              <div className="mt-2 pt-2 border-t border-hairline dark:border-slate-800">
+                <span className="text-[11px] font-mono text-ink-mute dark:text-slate-400 block mb-1.5">
                   Applies on days:
                 </span>
                 <div className="flex items-center gap-1.5">
@@ -281,8 +281,8 @@ export const MasterRoutineModal: React.FC = () => {
                         className={clsx(
                           'flex-1 py-1 text-xs font-mono font-semibold rounded-xs border transition-all',
                           isSelected
-                            ? 'bg-ink text-on-primary border-ink'
-                            : 'bg-canvas border-hairline text-ink-mute hover:border-hairline-strong'
+                            ? 'bg-ink dark:bg-slate-100 text-on-primary dark:text-slate-900 border-ink dark:border-slate-100'
+                            : 'bg-canvas dark:bg-slate-800 border-hairline dark:border-slate-700 text-ink-mute dark:text-slate-300 hover:border-hairline-strong'
                         )}
                       >
                         {label}
@@ -295,7 +295,7 @@ export const MasterRoutineModal: React.FC = () => {
           </div>
 
           {/* Time Range */}
-          <div className="flex flex-col gap-2 p-3.5 rounded-md bg-canvas-soft border border-hairline">
+          <div className="flex flex-col gap-2 p-3.5 rounded-md bg-canvas-soft dark:bg-slate-800/40 border border-hairline dark:border-slate-800">
             <label className="text-caption-mono text-ink-body font-medium uppercase flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-ink-mute" />
               <span>Time Window</span>
@@ -303,36 +303,36 @@ export const MasterRoutineModal: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-3 mt-1">
               <div>
-                <label htmlFor="routine-start" className="text-[11px] font-mono text-ink-mute">Start Time</label>
+                <label htmlFor="routine-start" className="text-[11px] font-mono text-ink-mute dark:text-slate-400">Start Time</label>
                 <input
                   id="routine-start"
                   type="time"
                   required
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full h-9 px-3 rounded-sm border border-hairline bg-canvas text-body-sm font-mono text-ink focus:outline-none focus:border-ink"
+                  className="w-full h-9 px-3 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-body-sm font-mono text-ink dark:text-white focus:outline-none focus:border-ink dark:focus:border-slate-500"
                 />
               </div>
               <div>
-                <label htmlFor="routine-end" className="text-[11px] font-mono text-ink-mute">End Time</label>
+                <label htmlFor="routine-end" className="text-[11px] font-mono text-ink-mute dark:text-slate-400">End Time</label>
                 <input
                   id="routine-end"
                   type="time"
                   required
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="w-full h-9 px-3 rounded-sm border border-hairline bg-canvas text-body-sm font-mono text-ink focus:outline-none focus:border-ink"
+                  className="w-full h-9 px-3 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-body-sm font-mono text-ink dark:text-white focus:outline-none focus:border-ink dark:focus:border-slate-500"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-1 border-t border-hairline/60 font-mono text-xs">
-              <span className="text-ink-mute">Duration per active day:</span>
+            <div className="flex items-center justify-between pt-1 border-t border-hairline/60 dark:border-slate-800 font-mono text-xs">
+              <span className="text-ink-mute dark:text-slate-400">Duration per active day:</span>
               <div className="flex items-center gap-1.5 font-medium">
-                <span className="text-ink font-semibold">{formatDuration(liveDuration)}</span>
-                <span className="text-ink-mute">({liveDuration} min)</span>
+                <span className="text-ink dark:text-white font-semibold">{formatDuration(liveDuration)}</span>
+                <span className="text-ink-mute dark:text-slate-400">({liveDuration} min)</span>
                 {startTime > endTime && (
-                  <span className="text-[10px] px-1.5 py-0.2 rounded-xs bg-amber-100 text-amber-800 font-semibold">
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-xs bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-semibold">
                     Overnight +24h
                   </span>
                 )}
@@ -357,8 +357,8 @@ export const MasterRoutineModal: React.FC = () => {
                   className={clsx(
                     'px-2.5 py-1 rounded-sm border font-mono text-xs transition-all',
                     !isCustomCategory && category === cat
-                      ? 'bg-ink text-on-primary border-ink shadow-level-1'
-                      : 'bg-canvas border-hairline text-ink-body hover:border-hairline-strong'
+                      ? 'bg-ink dark:bg-slate-100 text-on-primary dark:text-slate-900 border-ink dark:border-slate-100 shadow-level-1'
+                      : 'bg-canvas dark:bg-slate-800 border-hairline dark:border-slate-700 text-ink-body dark:text-slate-300 hover:border-hairline-strong'
                   )}
                 >
                   {cat}
@@ -380,8 +380,8 @@ export const MasterRoutineModal: React.FC = () => {
                   className={clsx(
                     'py-2 px-3 rounded-sm border text-xs font-mono font-medium transition-all flex items-center justify-center gap-1.5',
                     priority === 'high'
-                      ? 'bg-rose-50 border-rose-300 text-rose-800 shadow-level-1'
-                      : 'bg-canvas border-hairline text-ink-mute hover:border-hairline-strong'
+                      ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300 shadow-level-1'
+                      : 'bg-canvas dark:bg-slate-800 border-hairline dark:border-slate-700 text-ink-mute dark:text-slate-300 hover:border-hairline-strong'
                   )}
                 >
                   <span className="w-2 h-2 rounded-full bg-rose-500" />
@@ -394,8 +394,8 @@ export const MasterRoutineModal: React.FC = () => {
                   className={clsx(
                     'py-2 px-3 rounded-sm border text-xs font-mono font-medium transition-all flex items-center justify-center gap-1.5',
                     priority === 'medium'
-                      ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-level-1'
-                      : 'bg-canvas border-hairline text-ink-mute hover:border-hairline-strong'
+                      ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 shadow-level-1'
+                      : 'bg-canvas dark:bg-slate-800 border-hairline dark:border-slate-700 text-ink-mute dark:text-slate-300 hover:border-hairline-strong'
                   )}
                 >
                   <span className="w-2 h-2 rounded-full bg-amber-500" />
@@ -408,8 +408,8 @@ export const MasterRoutineModal: React.FC = () => {
                   className={clsx(
                     'py-2 px-3 rounded-sm border text-xs font-mono font-medium transition-all flex items-center justify-center gap-1.5',
                     priority === 'low'
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-800 shadow-level-1'
-                      : 'bg-canvas border-hairline text-ink-mute hover:border-hairline-strong'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 shadow-level-1'
+                      : 'bg-canvas dark:bg-slate-800 border-hairline dark:border-slate-700 text-ink-mute dark:text-slate-300 hover:border-hairline-strong'
                   )}
                 >
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
@@ -430,22 +430,22 @@ export const MasterRoutineModal: React.FC = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Habit objectives or routines..."
-              className="p-3 rounded-sm border border-hairline bg-canvas text-body-sm text-ink placeholder:text-ink-mute focus:outline-none focus:border-ink transition-colors resize-y text-xs"
+              className="p-3 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-body-sm text-ink dark:text-white placeholder:text-ink-mute dark:placeholder:text-slate-400 focus:outline-none focus:border-ink dark:focus:border-slate-500 transition-colors resize-y text-xs"
             />
           </div>
 
           {/* Submit buttons */}
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-hairline mt-2">
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-hairline dark:border-slate-800 mt-2">
             <button
               type="button"
               onClick={closeRoutineModal}
-              className="px-4 py-2 rounded-sm border border-hairline bg-canvas hover:bg-canvas-soft-2 text-ink text-xs font-medium transition-colors shadow-level-1"
+              className="px-4 py-2 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 hover:bg-canvas-soft-2 dark:hover:bg-slate-700 text-ink dark:text-slate-200 text-xs font-medium transition-colors shadow-level-1"
             >
               Cancel (Esc)
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-sm bg-ink hover:bg-ink/90 text-on-primary text-xs font-medium transition-colors shadow-level-2"
+              className="px-5 py-2 rounded-sm bg-ink dark:bg-slate-100 hover:bg-ink/90 dark:hover:bg-slate-200 text-on-primary dark:text-slate-900 text-xs font-medium transition-colors shadow-level-2"
             >
               {editingRoutine ? 'Save Routine' : 'Create Routine'}
             </button>

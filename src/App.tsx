@@ -23,9 +23,9 @@ export const App: React.FC = () => {
 
   if (!isInitialized) {
     return (
-      <div className="min-h-screen bg-canvas-soft flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-8 h-8 rounded-full border-2 border-ink border-t-transparent animate-spin mb-4" />
-        <span className="font-mono text-xs text-ink-mute tracking-wider uppercase">
+      <div className="min-h-screen bg-canvas-soft dark:bg-slate-950 text-ink dark:text-slate-100 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-8 h-8 rounded-full border-2 border-ink dark:border-slate-100 border-t-transparent animate-spin mb-4" />
+        <span className="font-mono text-xs text-ink-mute dark:text-slate-400 tracking-wider uppercase">
           Initializing 24-Hour Time Engine...
         </span>
       </div>
@@ -33,7 +33,7 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-canvas-soft text-ink flex flex-col antialiased selection:bg-ink selection:text-white">
+    <div className="min-h-screen bg-canvas-soft dark:bg-slate-950 text-ink dark:text-slate-100 flex flex-col antialiased selection:bg-ink selection:text-white dark:selection:bg-slate-100 dark:selection:text-slate-900 transition-colors">
       {/* Top Header */}
       <TopBar />
 
@@ -72,7 +72,7 @@ export const App: React.FC = () => {
       </main>
 
       {/* Minimalist Engineered Footer */}
-      <footer className="w-full border-t border-hairline bg-canvas mt-12 py-6 text-center text-xs text-ink-mute font-mono">
+      <footer className="w-full border-t border-hairline dark:border-slate-800 bg-canvas dark:bg-slate-900 mt-12 py-6 text-center text-xs text-ink-mute dark:text-slate-400 font-mono">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span>Timetable Manager — 24-Hour Time Budgeting & Productivity Engine</span>
           <div className="flex items-center gap-4">

@@ -9,16 +9,10 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   </React.StrictMode>
 );
 
-// Register offline PWA Service Worker in production/web environment
-if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/sw.js')
-      .then((reg) => {
-        console.log('[PWA] Service Worker registered with scope:', reg.scope);
-      })
-      .catch((err) => {
-        console.warn('[PWA] Service Worker registration failed:', err);
-      });
+      .register(`${import.meta.env.BASE_URL}sw.js`)
+      .catch((error) => console.log('SW registration failed:', error));
   });
 }

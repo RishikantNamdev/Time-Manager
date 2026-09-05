@@ -1,6 +1,6 @@
 # Timetable Manager
 
-> **Live Application**: [https://time-manager-crimson-devs.vercel.app/](https://time-manager-crimson-devs.vercel.app/)
+> **Live Application**: [https://time-manager-flame-eight.vercel.app/](https://time-manager-flame-eight.vercel.app/)
 
 A zero-friction, offline-first 24-hour time budget manager and routine scheduler built with React, TypeScript, Vite, and Tailwind CSS. Designed to treat time as a strict daily currency with zero pre-loaded clutter and full user data ownership.
 

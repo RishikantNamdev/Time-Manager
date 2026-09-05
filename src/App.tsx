@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { useScheduleStore } from './store/useScheduleStore';
 import { TopBar } from './components/TopBar';
 import { ViewNav } from './components/ViewNav';
@@ -86,6 +87,9 @@ export const App: React.FC = () => {
       <TaskModal />
       <MasterRoutineModal />
       <DataManagementModal />
+
+      {/* Vercel Web Analytics */}
+      <Analytics />
     </div>
   );
 };

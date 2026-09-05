@@ -4,7 +4,7 @@ import { fileURLToPath, URL } from 'node:url';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/Time-Manager/', // Ensures relative asset resolution on GitHub Pages
+  base: '/',
   plugins: [react()],
   esbuild: {
     legalComments: 'none',

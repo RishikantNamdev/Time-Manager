@@ -73,7 +73,6 @@ Built on a Vercel-inspired stark monochrome design system specified in [`DESIGN.
 | **Persistence** | IndexedDB via `idb-keyval` (with `localStorage` fallback) |
 | **Icons** | Lucide React |
 | **Standalone Packaging** | `vite-plugin-singlefile` |
-| **CI / CD** | GitHub Actions (`.github/workflows/deploy.yml`) to GitHub Pages |
 
 ---
 
@@ -115,14 +114,3 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 | `npm run build:singlefile` | `tsc && vite build --config vite.config.singlefile.ts && ...` | Compiles zero-install `dist/standalone.html` single-file app |
 | `npm run preview` | `vite preview` | Serves the production build locally for verification |
 
----
-
-## Deployment to GitHub Pages
-
-This repository includes an automated GitHub Actions workflow in [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml).
-
-To deploy:
-1. Push your changes to the `main` branch.
-2. In your GitHub repository settings, navigate to **Pages**.
-3. Under **Build and deployment > Source**, select **GitHub Actions**.
-4. The deployment pipeline will automatically build and publish the application.

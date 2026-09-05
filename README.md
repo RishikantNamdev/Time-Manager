@@ -3,7 +3,7 @@
 > **24-Hour Time Budgeting & Productivity Engine**  
 > A rigorous, deterministic time allocation and schedule intelligence system built for high-performance engineers and knowledge workers.
 
-You can access it on this link: [https://time-manager-flame-eight.vercel.app/](https://time-manager-flame-eight.vercel.app/)
+You can access it on this link: [https://time-manager-crimson-devs.vercel.app/]
 
 ---
 

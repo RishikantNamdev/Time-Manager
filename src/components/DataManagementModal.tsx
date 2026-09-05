@@ -109,7 +109,7 @@ export const DataManagementModal: React.FC = () => {
     setIsConfirmingReset(false);
     setImportStatus({
       type: 'success',
-      message: 'All schedules and master routines reset to default seed data.',
+      message: 'All schedules and master routines have been cleared to a clean slate.',
     });
   };
 
@@ -225,16 +225,16 @@ export const DataManagementModal: React.FC = () => {
         {/* Section 3: Destructive Reset */}
         <div className="p-4 rounded-md bg-canvas-soft border border-hairline space-y-2.5">
           <span className="text-caption-mono text-brand-error font-semibold uppercase tracking-wider block">
-            Reset to Default Seed Data
+            Reset to Blank Schedule
           </span>
           <p className="text-xs text-ink-mute leading-relaxed">
-            Erase custom items and reset all 7 days back to starter seed habits and tasks.
+            Clear all scheduled tasks, breaks, and routines across all 7 days to start fresh.
           </p>
 
           {isConfirmingReset ? (
             <div className="p-3 rounded-sm bg-rose-50 border border-rose-200 space-y-2">
               <span className="text-xs font-semibold text-rose-800 block">
-                Are you sure? This cannot be undone unless you have a backup.
+                Are you sure you want to clear all tasks and routines? This will reset your entire schedule to a clean slate.
               </span>
               <div className="flex items-center gap-2">
                 <button
@@ -242,7 +242,7 @@ export const DataManagementModal: React.FC = () => {
                   onClick={handleResetConfirm}
                   className="flex-1 py-1.5 rounded-sm bg-brand-error hover:bg-brand-error/90 text-white text-xs font-medium transition-colors"
                 >
-                  Yes, Erase & Reset
+                  Yes, Clear All Tasks & Reset
                 </button>
                 <button
                   type="button"
@@ -260,7 +260,7 @@ export const DataManagementModal: React.FC = () => {
               className="w-full py-2 px-3.5 rounded-sm border border-rose-200 bg-canvas hover:bg-rose-50/50 text-brand-error text-xs font-medium transition-colors shadow-level-1 flex items-center justify-center gap-2"
             >
               <RotateCcw className="w-3.5 h-3.5 text-brand-error" />
-              <span>Reset to Defaults</span>
+              <span>Clear All Tasks & Reset</span>
             </button>
           )}
         </div>

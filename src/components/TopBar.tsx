@@ -22,7 +22,11 @@ export const TopBar: React.FC = () => {
   }).format(new Date());
 
   const handleReset = async () => {
-    if (window.confirm('Reset all schedules and routines back to default starter seed data?')) {
+    if (
+      window.confirm(
+        'Are you sure you want to clear all tasks and routines? This will reset your entire schedule to a clean slate.'
+      )
+    ) {
       await resetToDefaults();
     }
   };
@@ -75,11 +79,11 @@ export const TopBar: React.FC = () => {
 
           <button
             onClick={handleReset}
-            title="Reset to starter seed data"
+            title="Clear all tasks and reset to blank schedule"
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm border border-hairline bg-canvas hover:bg-canvas-soft-2 text-ink text-xs font-medium transition-colors shadow-level-1"
           >
             <RotateCcw className="w-3.5 h-3.5 text-ink-mute" />
-            <span className="hidden xs:inline">Reset Seed</span>
+            <span className="hidden xs:inline">Reset</span>
           </button>
         </div>
       </div>

@@ -119,15 +119,16 @@ async function saveToStorage(
     await set(STORAGE_KEY_ROUTINES, routines);
     await set(STORAGE_KEY_ACTIVE_DAY, activeDay);
     await set(STORAGE_KEY_ACTIVE_VIEW, activeView);
+  } catch (err) {
+    console.warn('IDB save failed:', err);
+  }
+  try {
+    localStorage.setItem(STORAGE_KEY_SCHEDULES, JSON.stringify(schedules));
+    localStorage.setItem(STORAGE_KEY_ROUTINES, JSON.stringify(routines));
+    localStorage.setItem(STORAGE_KEY_ACTIVE_DAY, activeDay);
+    localStorage.setItem(STORAGE_KEY_ACTIVE_VIEW, activeView);
   } catch {
-    try {
-      localStorage.setItem(STORAGE_KEY_SCHEDULES, JSON.stringify(schedules));
-      localStorage.setItem(STORAGE_KEY_ROUTINES, JSON.stringify(routines));
-      localStorage.setItem(STORAGE_KEY_ACTIVE_DAY, activeDay);
-      localStorage.setItem(STORAGE_KEY_ACTIVE_VIEW, activeView);
-    } catch {
-      // LocalStorage fallback error ignored
-    }
+    // LocalStorage fallback error ignored
   }
 }
 
@@ -377,6 +378,15 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
       masterRoutines: INITIAL_MASTER_ROUTINES,
       selectedDay: today,
       activeView: 'daily',
+      isModalOpen: false,
+      editingItem: null,
+      modalPrefill: null,
+      isRoutineModalOpen: false,
+      editingRoutine: null,
+      isDataModalOpen: false,
+      searchQuery: '',
+      statusFilter: 'all',
+      priorityFilter: 'all',
     });
     await saveToStorage(INITIAL_DAY_SCHEDULES, INITIAL_MASTER_ROUTINES, today, 'daily');
   },

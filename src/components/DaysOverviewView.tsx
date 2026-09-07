@@ -38,33 +38,33 @@ export const DaysOverviewView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       {/* Top Section Header & Quick Stats */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-hairline pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-hairline dark:border-slate-800 pb-4">
         <div>
-          <h2 className="text-display-sm text-ink font-semibold tracking-tight-sm flex items-center gap-2">
+          <h2 className="text-display-sm text-ink dark:text-slate-100 font-semibold tracking-tight-sm flex items-center gap-2">
             <span>7-Day Schedule Comparison</span>
-            <span className="font-mono text-xs font-normal text-ink-mute px-2 py-0.5 rounded-full bg-canvas-soft border border-hairline">
+            <span className="font-mono text-xs font-normal text-ink-mute dark:text-slate-400 px-2 py-0.5 rounded-full bg-canvas-soft dark:bg-slate-800 border border-hairline dark:border-slate-700">
               Weekly Grid
             </span>
           </h2>
-          <p className="text-body-sm text-ink-mute mt-0.5">
+          <p className="text-body-sm text-ink-mute dark:text-slate-400 mt-0.5">
             Side-by-side time allocations, task velocity, and daily budgets across the entire week.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 font-mono text-xs text-ink-body">
-          <div className="px-3 py-1.5 rounded-md bg-canvas border border-hairline shadow-level-1">
-            <span className="text-ink-mute">Weekly Total: </span>
-            <span className="text-ink font-semibold">{formatDuration(totalWeeklyMins)}</span>
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 font-mono text-xs text-ink-body dark:text-slate-200">
+          <div className="px-3 py-1.5 rounded-md bg-canvas dark:bg-slate-900 border border-hairline dark:border-slate-800 shadow-level-1">
+            <span className="text-ink-mute dark:text-slate-400">Weekly Total: </span>
+            <span className="text-ink dark:text-slate-100 font-semibold">{formatDuration(totalWeeklyMins)}</span>
           </div>
-          <div className="px-3 py-1.5 rounded-md bg-canvas border border-hairline shadow-level-1">
-            <span className="text-ink-mute">Remaining Tasks: </span>
-            <span className="text-ink font-semibold">{totalWeeklyActiveTasks}</span>
+          <div className="px-3 py-1.5 rounded-md bg-canvas dark:bg-slate-900 border border-hairline dark:border-slate-800 shadow-level-1">
+            <span className="text-ink-mute dark:text-slate-400">Remaining Tasks: </span>
+            <span className="text-ink dark:text-slate-100 font-semibold">{totalWeeklyActiveTasks}</span>
           </div>
           {daysOverBudget > 0 && (
-            <div className="px-3 py-1.5 rounded-md bg-rose-50 border border-rose-200 text-rose-800 font-semibold shadow-level-1 flex items-center gap-1">
-              <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+            <div className="px-3 py-1.5 rounded-md bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-300 font-semibold shadow-level-1 flex items-center gap-1">
+              <AlertTriangle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
               <span>{daysOverBudget} Over Budget</span>
             </div>
           )}
@@ -72,7 +72,7 @@ export const DaysOverviewView: React.FC = () => {
       </div>
 
       {/* 7-Day Comparison Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3.5">
         {DAYS_CONFIG.map(({ key, name, short, dayIndex }) => {
           const items = getResolvedItemsForDay(key);
           const budget = calculateDayBudget(items);
@@ -86,16 +86,17 @@ export const DaysOverviewView: React.FC = () => {
             <div
               key={key}
               className={clsx(
-                'bg-canvas border rounded-md p-4 shadow-level-2 transition-all flex flex-col justify-between gap-3.5 relative overflow-hidden',
+                'bg-canvas dark:bg-slate-900 border rounded-md p-3.5 sm:p-4 shadow-level-2 transition-all flex flex-col justify-between min-h-[380px] relative overflow-hidden',
                 isToday
-                  ? 'border-ink shadow-level-3 ring-1 ring-ink/10'
-                  : 'border-hairline hover:border-hairline-strong'
+                  ? 'border-ink dark:border-cyan-400 shadow-level-3 ring-1 ring-ink/10 dark:ring-cyan-400/20'
+                  : 'border-hairline dark:border-slate-800 hover:border-hairline-strong dark:hover:border-slate-700'
               )}
             >
-              {/* Card Header: Day Title & Badges */}
+              {/* Card Top Section: Header, Metrics, & Timeline Progress */}
               <div>
-                <div className="flex items-center justify-between gap-1 mb-1">
-                  <span className="text-body-sm-strong font-semibold text-ink">
+                {/* Header: Day Title & Badges */}
+                <div className="flex items-center justify-between gap-1 mb-0.5">
+                  <span className="text-body-sm-strong font-semibold text-ink dark:text-slate-100">
                     {short}
                   </span>
                   <div className="flex items-center gap-1">
@@ -111,53 +112,60 @@ export const DaysOverviewView: React.FC = () => {
                     )}
                   </div>
                 </div>
-                <span className="text-[11px] text-ink-mute block font-mono">{name}</span>
+                <span className="text-[11px] text-ink-mute dark:text-slate-400 block font-mono">{name}</span>
 
                 {/* Quick KPI Numbers */}
-                <div className="mt-3 pt-3 border-t border-hairline font-mono text-xs space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-mute">Scheduled:</span>
-                    <span className={clsx('font-semibold', budget.isOverBudget ? 'text-brand-error' : 'text-ink')}>
+                <div className="mt-3 pt-2.5 border-t border-hairline dark:border-slate-800 font-mono text-xs space-y-1.5">
+                  <div className="flex justify-between items-center text-xs whitespace-nowrap gap-1">
+                    <span className="text-ink-mute dark:text-slate-400">Scheduled:</span>
+                    <span className={clsx('font-semibold tabular-nums', budget.isOverBudget ? 'text-brand-error' : 'text-ink dark:text-slate-200')}>
                       {formatDuration(budget.totalAllocatedMinutes)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-mute">Available:</span>
-                    <span className={clsx(budget.availableMinutes < 0 ? 'text-brand-error font-semibold' : 'text-ink-body')}>
+                  <div className="flex justify-between items-center text-xs whitespace-nowrap gap-1">
+                    <span className="text-ink-mute dark:text-slate-400">Available:</span>
+                    <span className={clsx('tabular-nums', budget.availableMinutes < 0 ? 'text-brand-error font-semibold' : 'text-ink-body dark:text-slate-300')}>
                       {budget.availableMinutes < 0
                         ? `-${formatDuration(Math.abs(budget.availableMinutes))}`
                         : formatDuration(budget.availableMinutes)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-mute">Tasks:</span>
-                    <span className="text-ink-body">
-                      {budget.activeTasksCount} active / {budget.activeTasksCount + budget.completedTasksCount}
-                    </span>
+                  <div className="flex justify-between items-center text-xs whitespace-nowrap gap-1">
+                    <span className="text-ink-mute dark:text-slate-400">Tasks:</span>
+                    <div className="flex items-center gap-1 tabular-nums">
+                      <span className="text-ink-body dark:text-slate-200 font-semibold">
+                        {budget.activeTasksCount}
+                        <span className="text-ink-mute dark:text-slate-500 font-normal mx-0.5">/</span>
+                        {budget.activeTasksCount + budget.completedTasksCount}
+                      </span>
+                      <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-canvas-soft dark:bg-slate-800 border border-hairline dark:border-slate-700 text-ink-mute dark:text-slate-400">
+                        active
+                      </span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Mini 1,440-minute Progress Bar */}
                 <div className="mt-3">
-                  <div className="w-full h-2 rounded-xs bg-canvas-soft-2 border border-hairline overflow-hidden flex">
+                  <div className="w-full h-2 rounded-xs bg-canvas-soft-2 dark:bg-slate-800 border border-hairline dark:border-slate-700 overflow-hidden flex">
                     {budget.isOverBudget ? (
                       <div className="h-full bg-brand-error w-full animate-pulse" />
                     ) : (
                       <>
                         <div
-                          className="h-full bg-ink transition-all"
+                          className="h-full bg-ink dark:bg-slate-200 transition-all"
                           style={{ width: `${taskPercent}%` }}
                           title={`Tasks: ${budget.taskMinutes}m`}
                         />
                         <div
-                          className="h-full bg-ink-mute transition-all"
+                          className="h-full bg-ink-mute dark:bg-slate-500 transition-all"
                           style={{ width: `${breakPercent}%` }}
                           title={`Rest: ${budget.breakMinutes}m`}
                         />
                       </>
                     )}
                   </div>
-                  <div className="flex justify-between font-mono text-[9px] text-ink-mute mt-1">
+                  <div className="flex justify-between font-mono text-[9px] text-ink-mute dark:text-slate-400 mt-1">
                     <span>0h</span>
                     <span>12h</span>
                     <span>24h</span>
@@ -166,39 +174,59 @@ export const DaysOverviewView: React.FC = () => {
 
                 {/* Conflict indicator */}
                 {overlaps.length > 0 && (
-                  <div className="mt-2.5 flex items-center gap-1 font-mono text-[10px] text-amber-700 bg-amber-50 p-1 rounded-xs border border-amber-200">
-                    <AlertTriangle className="w-3 h-3 text-amber-600 flex-shrink-0" />
-                    <span>{overlaps.length} overlap conflict</span>
+                  <div className="mt-2.5 flex items-center gap-1 font-mono text-[10px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 p-1.5 rounded-xs border border-amber-200 dark:border-amber-800/80">
+                    <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                    <span className="truncate">{overlaps.length} overlap conflict</span>
                   </div>
                 )}
-
-                {/* Top 3 items preview */}
-                <div className="mt-3 pt-2.5 border-t border-hairline/60 space-y-1 text-xs">
-                  <span className="text-[10px] font-mono text-ink-mute uppercase tracking-wider block">
-                    Blocks ({items.length})
-                  </span>
-                  {items.slice(0, 3).map((item) => (
-                    <div key={item.id} className="truncate text-ink-body flex items-center gap-1.5 text-[11px]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-ink-mute flex-shrink-0" />
-                      <span className="truncate">{item.title}</span>
-                    </div>
-                  ))}
-                  {items.length > 3 && (
-                    <span className="text-[10px] font-mono text-ink-mute italic block">
-                      +{items.length - 3} more entries
-                    </span>
-                  )}
-                </div>
               </div>
 
-              {/* Quick-Jump Action Button */}
+              {/* Blocks Preview / Empty State */}
+              <div className="mt-3 pt-2.5 border-t border-hairline/60 dark:border-slate-800/80 flex-1 flex flex-col justify-start">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-mono text-ink-mute dark:text-slate-400 uppercase tracking-wider block">
+                    Blocks ({items.length})
+                  </span>
+                </div>
+
+                {items.length === 0 ? (
+                  <div className="flex-1 min-h-[64px] flex items-center justify-center rounded border border-dashed border-hairline-strong/50 dark:border-slate-700/60 bg-canvas-soft/40 dark:bg-slate-900/40 px-2 py-3 text-center my-auto">
+                    <span className="text-[11px] font-mono text-ink-mute dark:text-slate-400 italic">
+                      No blocks scheduled
+                    </span>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    {items.slice(0, 3).map((item) => (
+                      <div key={item.id} className="truncate text-ink-body dark:text-slate-300 flex items-center gap-1.5 text-[11px]">
+                        <span
+                          className={clsx(
+                            'w-1.5 h-1.5 rounded-full flex-shrink-0',
+                            item.type === 'break' ? 'bg-amber-500' : 'bg-ink-mute dark:bg-slate-400'
+                          )}
+                        />
+                        <span className="truncate" title={item.title}>
+                          {item.title}
+                        </span>
+                      </div>
+                    ))}
+                    {items.length > 3 && (
+                      <span className="text-[10px] font-mono text-ink-mute dark:text-slate-400 italic block pt-0.5">
+                        +{items.length - 3} more entries
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Quick-Jump Action Button pinned to bottom */}
               <button
                 type="button"
                 onClick={() => handleOpenDay(key)}
-                className="w-full mt-2 py-1.5 px-2.5 rounded-sm border border-hairline bg-canvas hover:bg-canvas-soft-2 text-ink text-xs font-medium transition-colors shadow-level-1 flex items-center justify-center gap-1 group/btn"
+                className="w-full mt-3 py-1.5 px-2.5 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 hover:bg-canvas-soft-2 dark:hover:bg-slate-700 text-ink dark:text-slate-100 text-xs font-medium transition-colors shadow-level-1 flex items-center justify-center gap-1 group/btn"
               >
                 <span>Open Day</span>
-                <ArrowRight className="w-3 h-3 text-ink-mute group-hover/btn:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 text-ink-mute dark:text-slate-400 group-hover/btn:translate-x-0.5 transition-transform" />
               </button>
             </div>
           );

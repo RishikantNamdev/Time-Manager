@@ -35,7 +35,7 @@ export const TopBar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 w-full bg-canvas/95 backdrop-blur border-b border-hairline transition-colors">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Left: Branding & Core Engine Badge */}
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-md bg-slate-900 text-white border border-slate-700 dark:bg-slate-800 dark:text-slate-100 flex items-center justify-center shadow-level-2">

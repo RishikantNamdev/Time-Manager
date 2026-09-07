@@ -39,7 +39,7 @@ export const App: React.FC = () => {
       <TopBar />
 
       {/* Main Content Body */}
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
+      <main className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
         {/* View Navigation Pill Tabs */}
         <ViewNav />
 
@@ -74,7 +74,7 @@ export const App: React.FC = () => {
 
       {/* Minimalist Engineered Footer */}
       <footer className="w-full border-t border-hairline dark:border-slate-800 bg-canvas dark:bg-slate-900 mt-12 py-6 text-center text-xs text-ink-mute dark:text-slate-400 font-mono">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span>Timetable Manager — 24-Hour Time Budgeting & Productivity Engine</span>
           <div className="flex items-center gap-4">
             <span className="text-ink font-medium">1,440 Mins / Day</span>

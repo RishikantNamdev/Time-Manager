@@ -193,7 +193,7 @@ export const TimelineFeed: React.FC = () => {
           <button
             type="button"
             onClick={() => openCreateModal()}
-            className="px-4 py-2 rounded-pill bg-ink text-on-primary font-sans text-xs font-medium hover:bg-ink/90 transition-all shadow-level-2"
+            className="px-4 py-2 rounded-pill bg-slate-900 text-white border border-slate-700 hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 font-sans text-xs font-medium transition-all shadow-level-2"
           >
             + Add First Entry
           </button>

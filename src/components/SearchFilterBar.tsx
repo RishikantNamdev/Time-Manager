@@ -100,7 +100,7 @@ export const SearchFilterBar: React.FC = () => {
         <button
           type="button"
           onClick={() => openCreateModal()}
-          className="h-9 px-4 rounded-pill bg-ink hover:bg-ink/90 text-on-primary font-sans text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 shadow-level-2 flex-shrink-0"
+          className="h-9 px-4 rounded-pill bg-slate-900 text-white border border-slate-700 hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 font-sans text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 shadow-level-2 flex-shrink-0"
         >
           <Plus className="w-4 h-4 stroke-[2.2]" />
           <span>Add Entry</span>

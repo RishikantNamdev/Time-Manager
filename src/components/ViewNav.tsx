@@ -33,11 +33,11 @@ export const ViewNav: React.FC = () => {
               className={clsx(
                 'h-8 px-3.5 rounded-pill-sm text-xs sm:text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap select-none',
                 isActive
-                  ? 'bg-ink dark:bg-slate-100 text-on-primary dark:text-slate-950 shadow-level-1'
-                  : 'text-ink-body dark:text-slate-400 hover:text-ink dark:hover:text-slate-100 hover:bg-canvas-soft-2 dark:hover:bg-slate-800'
+                  ? 'bg-ink text-on-primary shadow-level-1 dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700'
+                  : 'text-ink-body dark:text-slate-400 hover:text-ink dark:hover:text-slate-100 hover:bg-canvas-soft-2 dark:hover:bg-slate-800 border border-transparent'
               )}
             >
-              <Icon className={clsx('w-3.5 h-3.5', isActive ? 'text-white dark:text-slate-950' : 'text-ink-mute dark:text-slate-400')} />
+              <Icon className={clsx('w-3.5 h-3.5', isActive ? 'text-white' : 'text-ink-mute dark:text-slate-400')} />
               <span>{label}</span>
             </button>
           );

@@ -44,7 +44,7 @@ export const DaySelector: React.FC = () => {
               className={clsx(
                 'group relative flex-1 min-w-[96px] py-2.5 px-3 rounded-md transition-all duration-150 text-left border flex flex-col justify-between gap-1',
                 isSelected
-                  ? 'bg-ink text-on-primary border-ink shadow-level-2'
+                  ? 'bg-ink text-on-primary border-ink shadow-level-2 dark:bg-slate-800 dark:text-white dark:border-cyan-400'
                   : 'bg-canvas text-ink-body border-hairline hover:border-hairline-strong hover:bg-canvas-soft shadow-level-1'
               )}
             >
@@ -53,7 +53,7 @@ export const DaySelector: React.FC = () => {
                 <span
                   className={clsx(
                     'text-xs font-semibold uppercase tracking-wider',
-                    isSelected ? 'text-on-primary' : 'text-ink'
+                    isSelected ? 'text-on-primary dark:text-slate-200' : 'text-ink'
                   )}
                 >
                   {label}
@@ -64,7 +64,7 @@ export const DaySelector: React.FC = () => {
                     className={clsx(
                       'text-[10px] font-mono px-1.5 py-0.2 rounded-full font-medium',
                       isSelected
-                        ? 'bg-white/20 text-white'
+                        ? 'bg-white/20 text-white dark:bg-slate-700 dark:text-slate-200'
                         : 'bg-canvas-soft-2 text-ink-body border border-hairline'
                     )}
                   >
@@ -83,7 +83,7 @@ export const DaySelector: React.FC = () => {
                         ? 'text-red-300 font-bold'
                         : 'text-brand-error font-bold'
                       : isSelected
-                      ? 'text-white/80'
+                      ? 'text-white/80 dark:text-slate-400'
                       : 'text-ink-mute'
                   )}
                 >

@@ -38,8 +38,8 @@ export const TopBar: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Left: Branding & Core Engine Badge */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-md bg-ink text-on-primary flex items-center justify-center shadow-level-2">
-            <Clock className="w-5 h-5 text-white stroke-[2.2]" />
+          <div className="w-9 h-9 rounded-md bg-slate-900 text-white border border-slate-700 dark:bg-slate-800 dark:text-slate-100 flex items-center justify-center shadow-level-2">
+            <Clock className="w-5 h-5 text-current stroke-[2.2]" />
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-2">

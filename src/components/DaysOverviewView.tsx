@@ -100,7 +100,7 @@ export const DaysOverviewView: React.FC = () => {
                   </span>
                   <div className="flex items-center gap-1">
                     {isToday && (
-                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-xs bg-ink text-on-primary font-semibold">
+                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-xs bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 border border-slate-700 dark:border-slate-300 font-semibold">
                         TODAY
                       </span>
                     )}

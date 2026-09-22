@@ -186,10 +186,17 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 {task.title}
               </span>
 
+              {/* Category Tag */}
+              {task.category && (
+                <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-canvas-soft-2 dark:bg-slate-800 text-ink-body dark:text-slate-300 border border-hairline dark:border-slate-700">
+                  {task.category}
+                </span>
+              )}
+
               {/* Priority Pill */}
               <span
                 className={clsx(
-                  'text-[10px] font-mono px-1.5 py-0.2 rounded-xs border uppercase font-medium',
+                  'text-xs font-medium px-2.5 py-0.5 rounded-full border uppercase',
                   priorityMeta.class
                 )}
               >
@@ -199,7 +206,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               {/* Technical Indicator for Master Routines */}
               {isMaster && (
                 <span
-                  className="text-[10px] font-mono px-1.5 py-0.2 rounded-xs bg-canvas-soft text-ink-mute border border-hairline uppercase font-medium"
+                  className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-canvas-soft dark:bg-slate-800 text-ink-mute dark:text-slate-300 border border-hairline dark:border-slate-700 uppercase"
                   title={isOverridden ? 'Modified for today only' : 'Inherited from Master Routine'}
                 >
                   {isOverridden ? '[MODIFIED]' : 'ROUTINE'}
@@ -208,7 +215,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
               {/* Collision Warning Pill */}
               {isOverlapping && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.2 rounded-xs bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 font-semibold">
+                <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 font-semibold">
                   <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                   <span>
                     Overlaps with {conflictingTitle || 'conflicting block'}{' '}
@@ -336,7 +343,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-hairline/60 text-ink-mute font-mono text-[11px]">
             <div className="flex items-center gap-3">
               {task.category && (
-                <span className="px-2 py-0.5 rounded-xs bg-canvas border border-hairline text-ink-body font-medium">
+                <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-canvas dark:bg-slate-800 border border-hairline dark:border-slate-700 text-ink-body dark:text-slate-200 font-medium">
                   Category: {task.category}
                 </span>
               )}

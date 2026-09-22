@@ -55,13 +55,13 @@ export const BreakCard: React.FC<BreakCardProps> = ({
               {breakItem.title}
             </span>
 
-            <span className="font-mono text-[10px] px-1.5 py-0.2 rounded-xs bg-canvas text-ink-mute border border-hairline uppercase font-medium">
+            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-canvas dark:bg-slate-800 text-ink-mute dark:text-slate-300 border border-hairline dark:border-slate-700 uppercase">
               Rest
             </span>
 
             {isMaster && (
               <span
-                className="font-mono text-[10px] px-1.5 py-0.2 rounded-xs bg-canvas text-ink-mute border border-hairline uppercase font-medium"
+                className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-canvas-soft dark:bg-slate-800 text-ink-mute dark:text-slate-300 border border-hairline dark:border-slate-700 uppercase"
                 title={isOverridden ? 'Modified for today only' : 'Inherited from Master Routine'}
               >
                 {isOverridden ? '[MODIFIED]' : 'ROUTINE'}
@@ -69,7 +69,7 @@ export const BreakCard: React.FC<BreakCardProps> = ({
             )}
 
             {isOverlapping && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.2 rounded-xs bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 font-semibold">
+              <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 font-semibold">
                 <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                 <span>
                   Overlaps with {conflictingTitle || 'conflicting block'}{' '}

@@ -99,6 +99,8 @@ export const DayBudgetMetrics: React.FC = () => {
 
         {/* Metric 3: Available Time */}
         <div
+          role="status"
+          aria-live="polite"
           className={clsx(
             'border rounded-md p-5 shadow-level-2 transition-all flex flex-col justify-between',
             budget.isOverBudget
@@ -156,7 +158,11 @@ export const DayBudgetMetrics: React.FC = () => {
       </div>
 
       {/* 24-Hour Progress Bar Container */}
-      <div className="bg-canvas border border-hairline rounded-md p-4 sm:p-5 shadow-level-2">
+      <div
+        role="status"
+        aria-live="polite"
+        className="bg-canvas border border-hairline rounded-md p-4 sm:p-5 shadow-level-2"
+      >
         <div className="flex items-center justify-between mb-2.5 flex-wrap gap-2">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-caption-mono text-ink-body font-medium uppercase tracking-wider">

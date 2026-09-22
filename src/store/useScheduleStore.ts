@@ -38,6 +38,9 @@ interface ScheduleState {
   // Data Management Modal State
   isDataModalOpen: boolean;
 
+  // Keyboard Shortcuts Modal State
+  isShortcutsModalOpen: boolean;
+
   // Filter & Search State
   searchQuery: string;
   statusFilter: StatusFilter;
@@ -75,6 +78,12 @@ interface ScheduleState {
     schedules: Record<DayOfWeek, DaySchedule>,
     routines: MasterRoutineItem[]
   ) => Promise<void>;
+
+  // Keyboard Shortcuts Modal Actions
+  openShortcutsModal: () => void;
+  closeShortcutsModal: () => void;
+  toggleShortcutsModal: () => void;
+  closeAllModals: () => void;
 
   // Filter Actions
   setSearchQuery: (query: string) => void;
@@ -150,6 +159,9 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
 
   // Data Management Modal State
   isDataModalOpen: false,
+
+  // Keyboard Shortcuts Modal State
+  isShortcutsModalOpen: false,
 
   // Filter & Search State
   searchQuery: '',
@@ -466,6 +478,31 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
 
   closeDataModal: () => {
     setStore({ isDataModalOpen: false });
+  },
+
+  // Keyboard Shortcuts Modal Actions
+  openShortcutsModal: () => {
+    setStore({ isShortcutsModalOpen: true });
+  },
+
+  closeShortcutsModal: () => {
+    setStore({ isShortcutsModalOpen: false });
+  },
+
+  toggleShortcutsModal: () => {
+    setStore((state) => ({ isShortcutsModalOpen: !state.isShortcutsModalOpen }));
+  },
+
+  closeAllModals: () => {
+    setStore({
+      isModalOpen: false,
+      isRoutineModalOpen: false,
+      isDataModalOpen: false,
+      isShortcutsModalOpen: false,
+      editingItem: null,
+      modalPrefill: null,
+      editingRoutine: null,
+    });
   },
 
   importScheduleData: async (

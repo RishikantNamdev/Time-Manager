@@ -9,12 +9,14 @@ interface BreakCardProps {
   breakItem: BreakItem;
   isOverlapping?: boolean;
   overlappingMinutes?: number;
+  conflictingTitle?: string;
 }
 
 export const BreakCard: React.FC<BreakCardProps> = ({
   breakItem,
   isOverlapping = false,
   overlappingMinutes,
+  conflictingTitle,
 }) => {
   const { openEditModal, deleteScheduleItem, selectedDay, masterRoutines, daySchedules } =
     useScheduleStore();
@@ -37,7 +39,7 @@ export const BreakCard: React.FC<BreakCardProps> = ({
       className={clsx(
         'group p-3.5 rounded-md border border-dashed transition-all flex items-center justify-between gap-3',
         isOverlapping
-          ? 'bg-amber-50/40 border-amber-300 shadow-level-1'
+          ? 'border-amber-500/50 bg-amber-500/5 dark:border-amber-400/40 dark:bg-amber-950/20 shadow-level-1'
           : 'bg-canvas-soft/80 border-hairline hover:border-hairline-strong hover:bg-canvas-soft'
       )}
     >
@@ -67,9 +69,12 @@ export const BreakCard: React.FC<BreakCardProps> = ({
             )}
 
             {isOverlapping && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.2 rounded-xs bg-amber-100 text-amber-800 border border-amber-300 font-semibold">
-                <AlertTriangle className="w-3 h-3 text-amber-600" />
-                <span>Collision {overlappingMinutes ? `(${overlappingMinutes}m)` : ''}</span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.2 rounded-xs bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 font-semibold">
+                <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                <span>
+                  Overlaps with {conflictingTitle || 'conflicting block'}{' '}
+                  {overlappingMinutes ? `(+${overlappingMinutes} min double-counted)` : ''}
+                </span>
               </span>
             )}
           </div>

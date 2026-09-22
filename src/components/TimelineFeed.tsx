@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
 import { useScheduleStore } from '../store/useScheduleStore';
 import { ScheduleItem, TaskItem, BreakItem, FreeSlot } from '../types/schedule';
-import { detectOverlaps, findFreeSlots, parseTimeToMinutes } from '../utils/timeMath';
+import { findFreeSlots, parseTimeToMinutes } from '../utils/timeMath';
+import { detectScheduleCollisions, getCollisionDetailsMap } from '../utils/collisionDetector';
 import { TaskCard } from './TaskCard';
 import { BreakCard } from './BreakCard';
 import { FreeSlotCard } from './FreeSlotCard';
-import { AlertTriangle, Calendar, Layers, Sparkles, FilterX } from 'lucide-react';
+import { AlertTriangle, Calendar, Layers, Sparkles, FilterX, CheckCircle2, CheckCheck } from 'lucide-react';
 
 type TimelineNode =
   | { kind: 'item'; data: ScheduleItem; startMin: number }
@@ -27,17 +28,22 @@ export const TimelineFeed: React.FC = () => {
   const allDayItems = getResolvedItemsForDay(selectedDay);
 
   // Overlap collisions on ALL fixed day items
-  const overlaps = useMemo(() => detectOverlaps(allDayItems), [allDayItems]);
+  const collisions = useMemo(() => detectScheduleCollisions(allDayItems), [allDayItems]);
+  const collisionMap = useMemo(() => getCollisionDetailsMap(allDayItems), [allDayItems]);
 
-  // Map of itemId to overlap details
-  const overlapMap = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const ov of overlaps) {
-      map.set(ov.itemA.id, (map.get(ov.itemA.id) || 0) + ov.overlapMinutes);
-      map.set(ov.itemB.id, (map.get(ov.itemB.id) || 0) + ov.overlapMinutes);
-    }
-    return map;
-  }, [overlaps]);
+  // Tasks counts for context-aware empty states
+  const allTasks = useMemo(
+    () => allDayItems.filter((i): i is TaskItem => i.type === 'task'),
+    [allDayItems]
+  );
+  const completedTasksCount = useMemo(
+    () => allTasks.filter((t) => t.isCompleted).length,
+    [allTasks]
+  );
+  const activeTasksCount = useMemo(
+    () => allTasks.filter((t) => !t.isCompleted).length,
+    [allTasks]
+  );
 
   // Free slots calculated on all fixed items
   const freeSlots = useMemo(() => findFreeSlots(allDayItems), [allDayItems]);
@@ -127,27 +133,27 @@ export const TimelineFeed: React.FC = () => {
   return (
     <section className="space-y-4">
       {/* Collision Alerts Banner */}
-      {overlaps.length > 0 && (
-        <div className="p-4 rounded-md bg-amber-50/80 border border-amber-300 text-amber-900 text-xs font-mono space-y-2 shadow-level-1">
-          <div className="flex items-center gap-2 font-semibold text-amber-900">
-            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+      {collisions.length > 0 && (
+        <div className="p-4 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs font-mono space-y-2 shadow-level-1">
+          <div className="flex items-center gap-2 font-semibold text-amber-900 dark:text-amber-200">
+            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
             <span>TIMELINE OVERLAP COLLISION DETECTED</span>
-            <span className="px-1.5 py-0.2 rounded-xs bg-amber-200 text-amber-900 text-[10px] font-bold">
-              {overlaps.length} {overlaps.length === 1 ? 'conflict' : 'conflicts'}
+            <span className="px-1.5 py-0.2 rounded-xs bg-amber-200/80 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 text-[10px] font-bold">
+              {collisions.length} {collisions.length === 1 ? 'conflict' : 'conflicts'}
             </span>
           </div>
 
-          <div className="space-y-1 text-amber-800">
-            {overlaps.map((ov, index) => (
+          <div className="space-y-1 text-amber-800 dark:text-amber-300">
+            {collisions.map((col, index) => (
               <div key={index} className="flex items-center gap-1.5 flex-wrap">
                 <span>• Collision of</span>
-                <span className="font-bold underline">{ov.overlapMinutes} minutes</span>
+                <span className="font-bold underline">{col.overlapMinutes} minutes</span>
                 <span>between</span>
-                <span className="font-semibold">&quot;{ov.itemA.title}&quot;</span>
-                <span className="text-amber-700 font-mono">({ov.itemA.startTime}-{ov.itemA.endTime})</span>
+                <span className="font-semibold">&quot;{col.itemA.title}&quot;</span>
+                <span className="text-amber-700 dark:text-amber-400 font-mono">({col.itemA.startTime}-{col.itemA.endTime})</span>
                 <span>and</span>
-                <span className="font-semibold">&quot;{ov.itemB.title}&quot;</span>
-                <span className="text-amber-700 font-mono">({ov.itemB.startTime}-{ov.itemB.endTime})</span>
+                <span className="font-semibold">&quot;{col.itemB.title}&quot;</span>
+                <span className="text-amber-700 dark:text-amber-400 font-mono">({col.itemB.startTime}-{col.itemB.endTime})</span>
               </div>
             ))}
           </div>
@@ -181,14 +187,16 @@ export const TimelineFeed: React.FC = () => {
 
       {/* Chronological Timeline Feed */}
       {allDayItems.length === 0 ? (
-        /* Empty State for Day */
-        <div className="p-12 rounded-lg bg-canvas border border-dashed border-hairline-strong text-center flex flex-col items-center justify-center shadow-level-1">
-          <div className="w-12 h-12 rounded-full bg-canvas-soft border border-hairline flex items-center justify-center text-ink-mute mb-3 shadow-level-1">
+        /* Empty State for Day (All filter & 0 total tasks) */
+        <div className="p-12 rounded-lg bg-canvas dark:bg-slate-900 border border-dashed border-hairline-strong dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-level-1">
+          <div className="w-12 h-12 rounded-full bg-canvas-soft dark:bg-slate-800 border border-hairline dark:border-slate-700 flex items-center justify-center text-ink-mute dark:text-slate-400 mb-3 shadow-level-1">
             <Calendar className="w-6 h-6 stroke-[1.5]" />
           </div>
-          <h3 className="text-body-md font-medium text-ink">No entries scheduled for this day</h3>
-          <p className="text-body-sm text-ink-mute max-w-sm mt-1 mb-4">
-            Start budgeting your 1,440 minutes by adding a focused task or rest block.
+          <h3 className="text-body-md font-semibold text-ink dark:text-slate-100">
+            No entries scheduled for this day. Start budgeting your 1,440 minutes.
+          </h3>
+          <p className="text-body-sm text-ink-mute dark:text-slate-400 max-w-sm mt-1 mb-4">
+            Add a focused task or rest block to begin organizing your daily pool.
           </p>
           <button
             type="button"
@@ -199,21 +207,67 @@ export const TimelineFeed: React.FC = () => {
           </button>
         </div>
       ) : filteredItems.length === 0 ? (
-        /* Filter Empty State */
-        <div className="p-10 rounded-lg bg-canvas border border-hairline text-center flex flex-col items-center justify-center shadow-level-1">
-          <FilterX className="w-8 h-8 text-ink-mute mb-2" />
-          <h3 className="text-body-md font-medium text-ink">No matching items found</h3>
-          <p className="text-body-sm text-ink-mute max-w-sm mt-1 mb-4">
-            Try adjusting your search query, priority, or status filters.
-          </p>
-          <button
-            type="button"
-            onClick={clearFilters}
-            className="px-3.5 py-1.5 rounded-sm border border-hairline bg-canvas hover:bg-canvas-soft text-ink font-mono text-xs font-medium transition-colors shadow-level-1"
-          >
-            Clear Filters
-          </button>
-        </div>
+        statusFilter === 'active' && activeTasksCount === 0 && completedTasksCount > 0 && !searchQuery.trim() && priorityFilter === 'all' ? (
+          /* Active filter & 0 active tasks (with completed tasks present) */
+          <div className="p-10 rounded-lg bg-canvas dark:bg-slate-900 border border-hairline dark:border-slate-800 text-center flex flex-col items-center justify-center shadow-level-1">
+            <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-3 shadow-level-1">
+              <CheckCheck className="w-6 h-6 stroke-[2]" />
+            </div>
+            <h3 className="text-body-md font-semibold text-ink dark:text-slate-100">
+              All caught up! All tasks for today are completed 🎉
+            </h3>
+            <p className="text-body-sm text-ink-mute dark:text-slate-400 max-w-sm mt-1 mb-4">
+              Great job! You have completed all {completedTasksCount} scheduled {completedTasksCount === 1 ? 'task' : 'tasks'} for today.
+            </p>
+            <button
+              type="button"
+              onClick={() => setStatusFilter('all')}
+              className="px-3.5 py-1.5 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 hover:bg-canvas-soft dark:hover:bg-slate-700 text-ink dark:text-slate-200 font-mono text-xs font-medium transition-colors shadow-level-1"
+            >
+              View All Entries
+            </button>
+          </div>
+        ) : statusFilter === 'completed' && completedTasksCount === 0 && !searchQuery.trim() && priorityFilter === 'all' ? (
+          /* Completed filter & 0 completed tasks */
+          <div className="p-10 rounded-lg bg-canvas dark:bg-slate-900 border border-hairline dark:border-slate-800 text-center flex flex-col items-center justify-center shadow-level-1">
+            <div className="w-12 h-12 rounded-full bg-canvas-soft dark:bg-slate-800 border border-hairline dark:border-slate-700 flex items-center justify-center text-ink-mute dark:text-slate-400 mb-3 shadow-level-1">
+              <CheckCircle2 className="w-6 h-6 stroke-[1.5]" />
+            </div>
+            <h3 className="text-body-md font-semibold text-ink dark:text-slate-100">
+              No completed tasks yet. Mark tasks as done as you progress.
+            </h3>
+            <p className="text-body-sm text-ink-mute dark:text-slate-400 max-w-sm mt-1 mb-4">
+              Check off tasks from your timeline feed as you complete them to track your accomplishments.
+            </p>
+            <button
+              type="button"
+              onClick={() => setStatusFilter('all')}
+              className="px-3.5 py-1.5 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 hover:bg-canvas-soft dark:hover:bg-slate-700 text-ink dark:text-slate-200 font-mono text-xs font-medium transition-colors shadow-level-1"
+            >
+              View All Entries
+            </button>
+          </div>
+        ) : (
+          /* Search / Priority filter active & 0 matches */
+          <div className="p-10 rounded-lg bg-canvas dark:bg-slate-900 border border-hairline dark:border-slate-800 text-center flex flex-col items-center justify-center shadow-level-1">
+            <div className="w-12 h-12 rounded-full bg-canvas-soft dark:bg-slate-800 border border-hairline dark:border-slate-700 flex items-center justify-center text-ink-mute dark:text-slate-400 mb-3 shadow-level-1">
+              <FilterX className="w-8 h-8 text-ink-mute dark:text-slate-400" />
+            </div>
+            <h3 className="text-body-md font-semibold text-ink dark:text-slate-100">
+              No tasks match your current filter or search criteria.
+            </h3>
+            <p className="text-body-sm text-ink-mute dark:text-slate-400 max-w-sm mt-1 mb-4">
+              Try adjusting your search query, priority, or status filters.
+            </p>
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="px-3.5 py-1.5 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 hover:bg-canvas-soft dark:hover:bg-slate-700 text-ink dark:text-slate-200 font-mono text-xs font-medium transition-colors shadow-level-1"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )
       ) : (
         <div className="space-y-3">
           {timelineNodes.map((node) => {
@@ -227,8 +281,10 @@ export const TimelineFeed: React.FC = () => {
             }
 
             const item = node.data;
-            const isOverlap = overlapMap.has(item.id);
-            const ovMins = overlapMap.get(item.id);
+            const colInfo = collisionMap.get(item.id);
+            const isOverlap = colInfo?.hasCollision ?? false;
+            const ovMins = colInfo?.totalOverlapMinutes;
+            const conflictingTitle = colInfo?.firstConflictTitle;
 
             if (item.type === 'task') {
               return (
@@ -237,6 +293,7 @@ export const TimelineFeed: React.FC = () => {
                   task={item as TaskItem}
                   isOverlapping={isOverlap}
                   overlappingMinutes={ovMins}
+                  conflictingTitle={conflictingTitle}
                 />
               );
             }
@@ -247,6 +304,7 @@ export const TimelineFeed: React.FC = () => {
                 breakItem={item as BreakItem}
                 isOverlapping={isOverlap}
                 overlappingMinutes={ovMins}
+                conflictingTitle={conflictingTitle}
               />
             );
           })}

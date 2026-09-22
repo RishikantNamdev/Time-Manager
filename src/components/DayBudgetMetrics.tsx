@@ -1,6 +1,7 @@
 import React from 'react';
 import { useScheduleStore } from '../store/useScheduleStore';
 import { calculateDayBudget, formatDuration, TOTAL_DAY_MINUTES } from '../utils/timeMath';
+import { getTotalCollisionMinutes } from '../utils/collisionDetector';
 import { CheckCircle2, Clock, Hourglass, AlertTriangle } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -8,6 +9,7 @@ export const DayBudgetMetrics: React.FC = () => {
   const { selectedDay, getResolvedItemsForDay } = useScheduleStore();
   const items = getResolvedItemsForDay(selectedDay);
   const budget = calculateDayBudget(items);
+  const collisionMinutes = getTotalCollisionMinutes(items);
 
   const taskPercentage = Math.min(
     (budget.taskMinutes / TOTAL_DAY_MINUTES) * 100,
@@ -155,8 +157,8 @@ export const DayBudgetMetrics: React.FC = () => {
 
       {/* 24-Hour Progress Bar Container */}
       <div className="bg-canvas border border-hairline rounded-md p-4 sm:p-5 shadow-level-2">
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between mb-2.5 flex-wrap gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-caption-mono text-ink-body font-medium uppercase tracking-wider">
               24-Hour Day Allocation
             </span>
@@ -164,6 +166,12 @@ export const DayBudgetMetrics: React.FC = () => {
               <span className="inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-sm bg-brand-error text-white font-medium">
                 <AlertTriangle className="w-3 h-3" />
                 OVER BUDGET ({budget.totalAllocatedMinutes}m / 1,440m)
+              </span>
+            )}
+            {collisionMinutes > 0 && (
+              <span className="inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-sm bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 font-medium">
+                <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                <span>Overlap detected: {collisionMinutes} mins double-booked</span>
               </span>
             )}
           </div>

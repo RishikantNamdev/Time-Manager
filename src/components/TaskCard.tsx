@@ -18,12 +18,14 @@ interface TaskCardProps {
   task: TaskItem;
   isOverlapping?: boolean;
   overlappingMinutes?: number;
+  conflictingTitle?: string;
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({
   task,
   isOverlapping = false,
   overlappingMinutes,
+  conflictingTitle,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const {
@@ -89,7 +91,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       className={clsx(
         'group rounded-md border bg-canvas shadow-level-2 transition-all overflow-hidden',
         isOverlapping
-          ? 'border-amber-400 bg-amber-50/20 shadow-level-3'
+          ? 'border-amber-500/50 bg-amber-500/5 dark:border-amber-400/40 dark:bg-amber-950/20 shadow-level-3'
           : 'border-hairline hover:border-hairline-strong',
         task.isCompleted && 'opacity-65 bg-canvas-soft/60'
       )}
@@ -146,9 +148,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
               {/* Collision Warning Pill */}
               {isOverlapping && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.2 rounded-xs bg-amber-100 text-amber-800 border border-amber-300 font-semibold">
-                  <AlertTriangle className="w-3 h-3 text-amber-600" />
-                  <span>Collision {overlappingMinutes ? `(${overlappingMinutes}m)` : ''}</span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.2 rounded-xs bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 font-semibold">
+                  <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                  <span>
+                    Overlaps with {conflictingTitle || 'conflicting block'}{' '}
+                    {overlappingMinutes ? `(+${overlappingMinutes} min double-counted)` : ''}
+                  </span>
                 </span>
               )}
             </div>

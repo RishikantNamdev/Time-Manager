@@ -24,6 +24,15 @@ export function formatMinutesToTime(minutes: number): string {
 }
 
 /**
+ * Adds minutes to an 'HH:mm' time string and returns a normalized 24-hour 'HH:mm' string.
+ */
+export function addMinutesToTime(timeStr: string, minutesToAdd: number): string {
+  const currentMin = parseTimeToMinutes(timeStr);
+  const newMin = ((currentMin + minutesToAdd) % TOTAL_DAY_MINUTES + TOTAL_DAY_MINUTES) % TOTAL_DAY_MINUTES;
+  return formatMinutesToTime(newMin);
+}
+
+/**
  * Formats duration in minutes to human-readable string (e.g., '1h 30m' or '45m').
  */
 export function formatDuration(minutes: number): string {

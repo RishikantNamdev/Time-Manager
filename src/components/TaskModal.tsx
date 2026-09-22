@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useScheduleStore } from '../store/useScheduleStore';
 import {
   EntryType,
@@ -7,8 +7,9 @@ import {
   BreakItem,
   TaskCategory,
 } from '../types/schedule';
-import { calculateDuration, formatDuration, formatMinutesToTime } from '../utils/timeMath';
-import { X, Clock, AlertCircle } from 'lucide-react';
+import { calculateDuration, formatDuration, formatMinutesToTime, addMinutesToTime } from '../utils/timeMath';
+import { checkCandidateCollision } from '../utils/collisionDetector';
+import { X, Clock, AlertCircle, AlertTriangle } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const PRESET_CATEGORIES: TaskCategory[] = [
@@ -28,6 +29,7 @@ export const TaskModal: React.FC = () => {
     addScheduleItem,
     updateScheduleItem,
     selectedDay,
+    getResolvedItemsForDay,
   } = useScheduleStore();
 
   const [type, setType] = useState<EntryType>('task');
@@ -118,6 +120,13 @@ export const TaskModal: React.FC = () => {
   const liveDuration = isFloating
     ? floatingDuration
     : calculateDuration(startTime, endTime);
+
+  // Overlap collision detection against active day's existing items
+  const allDayItems = getResolvedItemsForDay(selectedDay);
+  const collisionResult = useMemo(() => {
+    if (isFloating || !startTime || !endTime) return null;
+    return checkCandidateCollision(startTime, endTime, allDayItems, editingItem?.id);
+  }, [isFloating, startTime, endTime, allDayItems, editingItem?.id]);
 
   // Global key listener for Escape and Enter
   useEffect(() => {
@@ -345,14 +354,18 @@ export const TaskModal: React.FC = () => {
             {isFloating ? (
               <div className="flex items-center gap-3 mt-1">
                 <div className="flex-1">
-                  <label className="text-[11px] font-mono text-ink-mute">Duration (Minutes)</label>
+                  <label className="text-[11px] font-mono text-ink-mute dark:text-slate-400">Duration (Minutes)</label>
                   <input
                     type="number"
-                    min="5"
+                    min="1"
                     max="1440"
                     step="5"
-                    value={floatingDuration}
-                    onChange={(e) => setFloatingDuration(parseInt(e.target.value, 10) || 0)}
+                    value={floatingDuration === 0 ? '' : floatingDuration}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFloatingDuration(val === '' ? 0 : Math.max(0, parseInt(val, 10) || 0));
+                    }}
                     className="w-full h-9 px-3 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-body-sm font-mono text-ink dark:text-white focus:outline-none focus:border-ink dark:focus:border-slate-500"
                   />
                 </div>
@@ -361,29 +374,99 @@ export const TaskModal: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 mt-1">
-                <div>
-                  <label htmlFor="start-time" className="text-[11px] font-mono text-ink-mute dark:text-slate-400">Start Time</label>
-                  <input
-                    id="start-time"
-                    type="time"
-                    required
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full h-9 px-3 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-body-sm font-mono text-ink dark:text-white focus:outline-none focus:border-ink dark:focus:border-slate-500"
-                  />
+              <div className="space-y-3 mt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="start-time" className="text-[11px] font-mono text-ink-mute dark:text-slate-400">Start Time</label>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setStartTime(addMinutesToTime(startTime, 15))}
+                          className="px-1.5 py-0.5 text-[10px] font-mono rounded-xs border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-ink-mute hover:text-ink dark:text-slate-400 dark:hover:text-white transition-colors"
+                          title="Advance start time by 15m"
+                        >
+                          +15m
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setStartTime(addMinutesToTime(startTime, 30))}
+                          className="px-1.5 py-0.5 text-[10px] font-mono rounded-xs border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-ink-mute hover:text-ink dark:text-slate-400 dark:hover:text-white transition-colors"
+                          title="Advance start time by 30m"
+                        >
+                          +30m
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setStartTime(addMinutesToTime(startTime, 60))}
+                          className="px-1.5 py-0.5 text-[10px] font-mono rounded-xs border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-ink-mute hover:text-ink dark:text-slate-400 dark:hover:text-white transition-colors"
+                          title="Advance start time by 1h"
+                        >
+                          +1h
+                        </button>
+                      </div>
+                    </div>
+                    <input
+                      id="start-time"
+                      type="time"
+                      step="60"
+                      required
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="w-full h-9 px-3 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-body-sm font-mono text-ink dark:text-white focus:outline-none focus:border-ink dark:focus:border-slate-500"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="end-time" className="text-[11px] font-mono text-ink-mute dark:text-slate-400">End Time</label>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setEndTime(addMinutesToTime(endTime, 15))}
+                          className="px-1.5 py-0.5 text-[10px] font-mono rounded-xs border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-ink-mute hover:text-ink dark:text-slate-400 dark:hover:text-white transition-colors"
+                          title="Advance end time by 15m"
+                        >
+                          +15m
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEndTime(addMinutesToTime(endTime, 30))}
+                          className="px-1.5 py-0.5 text-[10px] font-mono rounded-xs border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-ink-mute hover:text-ink dark:text-slate-400 dark:hover:text-white transition-colors"
+                          title="Advance end time by 30m"
+                        >
+                          +30m
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEndTime(addMinutesToTime(endTime, 60))}
+                          className="px-1.5 py-0.5 text-[10px] font-mono rounded-xs border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-ink-mute hover:text-ink dark:text-slate-400 dark:hover:text-white transition-colors"
+                          title="Advance end time by 1h"
+                        >
+                          +1h
+                        </button>
+                      </div>
+                    </div>
+                    <input
+                      id="end-time"
+                      type="time"
+                      step="60"
+                      required
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      className="w-full h-9 px-3 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-body-sm font-mono text-ink dark:text-white focus:outline-none focus:border-ink dark:focus:border-slate-500"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label htmlFor="end-time" className="text-[11px] font-mono text-ink-mute dark:text-slate-400">End Time</label>
-                  <input
-                    id="end-time"
-                    type="time"
-                    required
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full h-9 px-3 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-body-sm font-mono text-ink dark:text-white focus:outline-none focus:border-ink dark:focus:border-slate-500"
-                  />
-                </div>
+
+                {/* Inline Schedule Collision Warning */}
+                {collisionResult?.hasCollision && collisionResult.conflictingItem && (
+                  <div className="p-2.5 rounded-sm bg-amber-500/10 border border-amber-500/40 text-amber-900 dark:text-amber-200 text-xs font-mono flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                    <span>
+                      Note: This time window overlaps with &apos;{collisionResult.conflictingItem.title}&apos; ({collisionResult.conflictingItem.startTime} - {collisionResult.conflictingItem.endTime}).
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 

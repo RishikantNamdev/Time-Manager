@@ -1,7 +1,7 @@
 import React from 'react';
 import { BreakItem } from '../types/schedule';
 import { useScheduleStore } from '../store/useScheduleStore';
-import { formatDuration } from '../utils/timeMath';
+import { formatDuration, format24To12Display } from '../utils/timeMath';
 import { Coffee, Edit2, Trash2, AlertTriangle } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -84,6 +84,17 @@ export const BreakCard: React.FC<BreakCardProps> = ({
               {breakItem.description}
             </p>
           )}
+
+          {/* Sub-line for mobile: Time range */}
+          <div className="flex items-center gap-2 mt-0.5 sm:hidden font-mono text-[11px] text-ink-mute">
+            <span>
+              {breakItem.startTime && breakItem.endTime
+                ? `${format24To12Display(breakItem.startTime)} - ${format24To12Display(breakItem.endTime)}`
+                : 'Floating'}
+            </span>
+            <span>•</span>
+            <span>{formatDuration(breakItem.durationMinutes)}</span>
+          </div>
         </div>
       </div>
 
@@ -91,7 +102,7 @@ export const BreakCard: React.FC<BreakCardProps> = ({
       <div className="flex items-center gap-2.5 flex-shrink-0 font-mono text-xs text-ink-mute">
         <span className="hidden sm:inline">
           {breakItem.startTime && breakItem.endTime
-            ? `${breakItem.startTime} – ${breakItem.endTime}`
+            ? `${format24To12Display(breakItem.startTime)} – ${format24To12Display(breakItem.endTime)}`
             : 'Floating'}
         </span>
 

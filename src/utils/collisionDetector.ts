@@ -1,5 +1,5 @@
 import { ScheduleItem } from '../types/schedule';
-import { parseTimeToMinutes, TOTAL_DAY_MINUTES } from './timeMath';
+import { parseTimeToMinutes, TOTAL_DAY_MINUTES, format24To12Display } from './timeMath';
 
 export interface TimeInterval {
   start: number;
@@ -137,7 +137,7 @@ export function getCollisionDetailsMap(
       infoA.conflictingTitles.push(col.itemB.title);
       if (!infoA.firstConflictTitle) {
         infoA.firstConflictTitle = col.itemB.title;
-        infoA.firstConflictTime = `${col.itemB.startTime} - ${col.itemB.endTime}`;
+        infoA.firstConflictTime = `${format24To12Display(col.itemB.startTime)} - ${format24To12Display(col.itemB.endTime)}`;
       }
       infoA.conflicts.push({
         item: col.itemB,
@@ -153,7 +153,7 @@ export function getCollisionDetailsMap(
       infoB.conflictingTitles.push(col.itemA.title);
       if (!infoB.firstConflictTitle) {
         infoB.firstConflictTitle = col.itemA.title;
-        infoB.firstConflictTime = `${col.itemA.startTime} - ${col.itemA.endTime}`;
+        infoB.firstConflictTime = `${format24To12Display(col.itemA.startTime)} - ${format24To12Display(col.itemA.endTime)}`;
       }
       infoB.conflicts.push({
         item: col.itemA,

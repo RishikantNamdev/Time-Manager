@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TaskItem } from '../types/schedule';
 import { useScheduleStore } from '../store/useScheduleStore';
-import { formatDuration } from '../utils/timeMath';
+import { formatDuration, format24To12Display } from '../utils/timeMath';
 import { playCompletionChime } from '../utils/audioChime';
 import {
   Check,
@@ -50,12 +50,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const [isRunning, setIsRunning] = useState(false);
   const [hasFinished, setHasFinished] = useState(false);
 
-  // Sync timer duration if task duration changes while paused
+  // Only reset when task duration or ID changes, NOT when isRunning changes
   useEffect(() => {
-    if (!isRunning && !hasFinished) {
-      setTimeLeft(Math.max(1, (task.durationMinutes || 0) * 60));
-    }
-  }, [task.durationMinutes, isRunning, hasFinished]);
+    setTimeLeft(Math.max(1, (task.durationMinutes || 0) * 60));
+    setIsRunning(false);
+    setHasFinished(false);
+  }, [task.id, task.durationMinutes]);
 
   // Active ticking interval
   useEffect(() => {
@@ -228,7 +228,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             {/* Sub-line for mobile: Time range */}
             <div className="flex items-center gap-2 mt-0.5 sm:hidden font-mono text-[11px] text-ink-mute">
               <span>
-                {task.startTime && task.endTime ? `${task.startTime} - ${task.endTime}` : 'Floating'}
+                {task.startTime && task.endTime
+                  ? `${format24To12Display(task.startTime)} - ${format24To12Display(task.endTime)}`
+                  : 'Floating'}
               </span>
               <span>•</span>
               <span>{formatDuration(task.durationMinutes)}</span>
@@ -241,7 +243,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           <div className="hidden sm:flex items-center gap-2 font-mono text-xs text-ink-mute">
             <Clock className="w-3.5 h-3.5" />
             <span className="text-ink-body font-medium">
-              {task.startTime && task.endTime ? `${task.startTime} – ${task.endTime}` : 'Floating Goal'}
+              {task.startTime && task.endTime
+                ? `${format24To12Display(task.startTime)} – ${format24To12Display(task.endTime)}`
+                : 'Floating Goal'}
             </span>
           </div>
 
@@ -303,14 +307,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                       ? 'bg-cyan-600 text-white border-cyan-600 hover:bg-cyan-700'
                       : 'bg-canvas dark:bg-slate-800 border-hairline dark:border-slate-700 hover:bg-canvas-soft-2 dark:hover:bg-slate-700 text-ink dark:text-slate-200'
                   )}
-                  title={isRunning ? 'Pause focus timer' : 'Start focus timer'}
+                  title={isRunning ? 'Pause focus timer' : timeLeft < (task.durationMinutes || 0) * 60 ? 'Resume focus timer' : 'Start focus timer'}
                 >
                   {isRunning ? (
                     <Pause className="w-3 h-3 fill-current" />
                   ) : (
                     <Play className="w-3 h-3 fill-current" />
                   )}
-                  <span>{isRunning ? 'Pause' : 'Start'}</span>
+                  <span>{isRunning ? 'Pause' : timeLeft < (task.durationMinutes || 0) * 60 ? 'Resume' : 'Start'}</span>
                 </button>
 
                 <button

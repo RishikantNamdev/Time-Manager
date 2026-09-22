@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useScheduleStore } from '../store/useScheduleStore';
 import { ScheduleItem, TaskItem, BreakItem, FreeSlot } from '../types/schedule';
-import { findFreeSlots, parseTimeToMinutes } from '../utils/timeMath';
+import { findFreeSlots, parseTimeToMinutes, format24To12Display } from '../utils/timeMath';
 import { detectScheduleCollisions, getCollisionDetailsMap } from '../utils/collisionDetector';
 import { TaskCard } from './TaskCard';
 import { BreakCard } from './BreakCard';
@@ -150,10 +150,10 @@ export const TimelineFeed: React.FC = () => {
                 <span className="font-bold underline">{col.overlapMinutes} minutes</span>
                 <span>between</span>
                 <span className="font-semibold">&quot;{col.itemA.title}&quot;</span>
-                <span className="text-amber-700 dark:text-amber-400 font-mono">({col.itemA.startTime}-{col.itemA.endTime})</span>
+                <span className="text-amber-700 dark:text-amber-400 font-mono">({format24To12Display(col.itemA.startTime)} - {format24To12Display(col.itemA.endTime)})</span>
                 <span>and</span>
                 <span className="font-semibold">&quot;{col.itemB.title}&quot;</span>
-                <span className="text-amber-700 dark:text-amber-400 font-mono">({col.itemB.startTime}-{col.itemB.endTime})</span>
+                <span className="text-amber-700 dark:text-amber-400 font-mono">({format24To12Display(col.itemB.startTime)} - {format24To12Display(col.itemB.endTime)})</span>
               </div>
             ))}
           </div>

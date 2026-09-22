@@ -1,7 +1,7 @@
 import React from 'react';
 import { useScheduleStore } from '../store/useScheduleStore';
 import { DayOfWeek } from '../types/schedule';
-import { calculateDayBudget, formatDuration, TOTAL_DAY_MINUTES, detectOverlaps } from '../utils/timeMath';
+import { calculateDayBudget, formatDuration, TOTAL_DAY_MINUTES, detectOverlaps, format24To12Display } from '../utils/timeMath';
 import { ArrowRight, AlertTriangle } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -198,16 +198,30 @@ export const DaysOverviewView: React.FC = () => {
                 ) : (
                   <div className="space-y-1.5">
                     {items.slice(0, 3).map((item) => (
-                      <div key={item.id} className="truncate text-ink-body dark:text-slate-300 flex items-center gap-1.5 text-[11px]">
-                        <span
-                          className={clsx(
-                            'w-1.5 h-1.5 rounded-full flex-shrink-0',
-                            item.type === 'break' ? 'bg-amber-500' : 'bg-ink-mute dark:bg-slate-400'
-                          )}
-                        />
-                        <span className="truncate" title={item.title}>
-                          {item.title}
-                        </span>
+                      <div key={item.id} className="truncate text-ink-body dark:text-slate-300 flex items-center justify-between gap-1.5 text-[11px]">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span
+                            className={clsx(
+                              'w-1.5 h-1.5 rounded-full flex-shrink-0',
+                              item.type === 'break' ? 'bg-amber-500' : 'bg-ink-mute dark:bg-slate-400'
+                            )}
+                          />
+                          <span
+                            className="truncate"
+                            title={
+                              item.startTime && item.endTime
+                                ? `${item.title} (${format24To12Display(item.startTime)} - ${format24To12Display(item.endTime)})`
+                                : item.title
+                            }
+                          >
+                            {item.title}
+                          </span>
+                        </div>
+                        {item.startTime && (
+                          <span className="text-[10px] font-mono text-ink-mute dark:text-slate-400 flex-shrink-0">
+                            {format24To12Display(item.startTime)}
+                          </span>
+                        )}
                       </div>
                     ))}
                     {items.length > 3 && (

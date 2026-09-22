@@ -1,6 +1,7 @@
 import React from 'react';
 import { FreeSlot } from '../types/schedule';
 import { useScheduleStore } from '../store/useScheduleStore';
+import { format24To12Display } from '../utils/timeMath';
 import { Plus } from 'lucide-react';
 
 interface FreeSlotCardProps {
@@ -23,7 +24,7 @@ export const FreeSlotCard: React.FC<FreeSlotCardProps> = ({ slot }) => {
     <button
       type="button"
       onClick={handleClick}
-      title={`Click to schedule a block between ${slot.startTime} and ${slot.endTime}`}
+      title={`Click to schedule a block between ${format24To12Display(slot.startTime)} and ${format24To12Display(slot.endTime)}`}
       className="w-full border border-dashed border-hairline-strong/80 hover:border-ink rounded-md py-2.5 px-4 text-center text-ink-mute hover:text-ink transition-all cursor-pointer bg-canvas-soft/40 hover:bg-canvas flex items-center justify-center gap-2 group shadow-sm"
     >
       <div className="w-4 h-4 rounded-full border border-hairline-strong group-hover:border-ink flex items-center justify-center transition-colors">
@@ -36,9 +37,10 @@ export const FreeSlotCard: React.FC<FreeSlotCardProps> = ({ slot }) => {
         </span>{' '}
         <span className="text-ink-mute">({slot.durationMinutes}m available)</span> —{' '}
         <span className="text-ink-body font-medium">
-          {slot.startTime} to {slot.endTime}
+          {format24To12Display(slot.startTime)} to {format24To12Display(slot.endTime)}
         </span>
       </span>
     </button>
   );
 };
+

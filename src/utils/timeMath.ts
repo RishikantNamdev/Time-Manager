@@ -250,6 +250,10 @@ export function parse24To12(time24: string): { hour: number; minute: number; per
   let minutes = parseInt(minutesStr, 10);
   if (isNaN(minutes)) minutes = 0;
 
+  if (hours === 24) {
+    return { hour: 12, minute: 0, period: 'AM' };
+  }
+
   hours = Math.min(Math.max(hours, 0), 23);
   minutes = Math.min(Math.max(minutes, 0), 59);
 

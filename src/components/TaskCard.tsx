@@ -108,12 +108,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       case 'medium':
         return {
           label: 'Medium',
-          class: 'bg-amber-50 text-amber-700 border-amber-200',
+          class: 'text-amber-950 bg-amber-100 border-amber-300 dark:text-amber-200 dark:bg-amber-950/40 dark:border-amber-800',
         };
       case 'low':
         return {
           label: 'Low',
-          class: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          class: 'text-teal-900 bg-teal-100 border-teal-300 dark:text-teal-200 dark:bg-teal-950/40 dark:border-teal-800',
         };
       default:
         return {
@@ -215,8 +215,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
               {/* Collision Warning Pill */}
               {isOverlapping && (
-                <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 font-semibold">
-                  <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full text-amber-950 bg-amber-100 border border-amber-300 dark:text-amber-200 dark:bg-amber-950/40 dark:border-amber-800 font-semibold">
+                  <AlertTriangle className="w-3 h-3 text-amber-700 dark:text-amber-400" />
                   <span>
                     Overlaps with {conflictingTitle || 'conflicting block'}{' '}
                     {overlappingMinutes ? `(+${overlappingMinutes} min double-counted)` : ''}

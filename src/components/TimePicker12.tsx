@@ -3,13 +3,15 @@ import { parse24To12, format12To24 } from '../utils/timeMath';
 import { clsx } from 'clsx';
 
 export interface TimePicker12Props {
-  id: string;
-  label: string;
+  id?: string;
+  idPrefix?: string;
+  label?: string;
   value: string; // 24-hour 'HH:mm'
   onChange: (value24: string) => void;
 }
 
-export const TimePicker12: React.FC<TimePicker12Props> = ({ id, label, value, onChange }) => {
+export const TimePicker12: React.FC<TimePicker12Props> = ({ id, idPrefix, label = 'Time', value, onChange }) => {
+  const baseId = idPrefix || id || 'time-picker';
   const { hour, minute, period } = parse24To12(value);
   const [hourInput, setHourInput] = useState<string>(hour.toString());
   const [minuteInput, setMinuteInput] = useState<string>(minute.toString().padStart(2, '0'));
@@ -155,7 +157,7 @@ export const TimePicker12: React.FC<TimePicker12Props> = ({ id, label, value, on
       {/* Time Digits Box */}
       <div className="flex items-center h-9 px-2 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 focus-within:border-ink dark:focus-within:border-slate-400 transition-colors flex-1 justify-center shadow-level-1">
         <input
-          id={id}
+          id={baseId}
           type="number"
           min={1}
           max={12}
@@ -169,7 +171,7 @@ export const TimePicker12: React.FC<TimePicker12Props> = ({ id, label, value, on
         />
         <span className="text-ink-mute dark:text-slate-400 font-mono font-bold select-none px-0.5 pb-0.5">:</span>
         <input
-          id={`${id}-minute`}
+          id={`${baseId}-minute`}
           type="number"
           min={0}
           max={59}

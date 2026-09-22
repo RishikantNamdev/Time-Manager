@@ -175,8 +175,8 @@ export const DayBudgetMetrics: React.FC = () => {
               </span>
             )}
             {collisionMinutes > 0 && (
-              <span className="inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-sm bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 font-medium">
-                <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+              <span className="inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-sm text-amber-950 bg-amber-100 border border-amber-300 dark:text-amber-200 dark:bg-amber-950/40 dark:border-amber-800 font-medium">
+                <AlertTriangle className="w-3 h-3 text-amber-700 dark:text-amber-400" />
                 <span>Overlap detected: {collisionMinutes} mins double-booked</span>
               </span>
             )}

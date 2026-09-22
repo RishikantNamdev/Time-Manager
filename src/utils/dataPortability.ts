@@ -1,4 +1,5 @@
 import { DayOfWeek, DaySchedule, MasterRoutineItem } from '../types/schedule';
+import { validateBackupJson } from './schemaValidation';
 
 export interface BackupPayload {
   version: string;
@@ -45,37 +46,44 @@ export function validateAndParseBackup(
   jsonString: string
 ): { success: true; data: BackupPayload } | { success: false; error: string } {
   try {
-    const parsed = JSON.parse(jsonString);
+    const rawParsed = JSON.parse(jsonString);
 
-    if (!parsed || typeof parsed !== 'object') {
-      return { success: false, error: 'Uploaded file does not contain a valid JSON object.' };
+    // Validate using Zod schema
+    const validation = validateBackupJson(rawParsed);
+    if (!validation.success) {
+      return { success: false, error: validation.error || 'Backup schema validation failed.' };
     }
 
-    // Validate daySchedules object
-    if (!parsed.daySchedules || typeof parsed.daySchedules !== 'object') {
+    const parsed = validation.data;
+
+    // Normalize day schedules (supports daySchedules or days)
+    const schedulesMap = parsed.daySchedules || parsed.days;
+    if (!schedulesMap || typeof schedulesMap !== 'object') {
       return { success: false, error: 'Backup is missing the "daySchedules" data object.' };
     }
 
     for (const day of REQUIRED_DAYS) {
-      const schedule = parsed.daySchedules[day];
+      const schedule = schedulesMap[day];
       if (!schedule || typeof schedule !== 'object') {
         return { success: false, error: `Missing schedule data for required day: "${day}".` };
       }
-      if (!Array.isArray(schedule.customItems)) {
-        return { success: false, error: `Invalid "customItems" array for day: "${day}".` };
+      const items = Array.isArray(schedule.customItems) ? schedule.customItems : Array.isArray(schedule) ? schedule : null;
+      if (!items) {
+        return { success: false, error: `Invalid items array for day: "${day}".` };
       }
     }
 
-    // Validate masterRoutines array
-    if (!parsed.masterRoutines || !Array.isArray(parsed.masterRoutines)) {
-      return { success: false, error: 'Backup is missing the "masterRoutines" list array.' };
+    // Normalize master routines
+    const routinesList = parsed.masterRoutines || parsed.routines || [];
+    if (!Array.isArray(routinesList)) {
+      return { success: false, error: 'Backup "masterRoutines" must be an array.' };
     }
 
-    for (const routine of parsed.masterRoutines) {
-      if (!routine.id || !routine.title || !routine.type || !routine.recurrence) {
+    for (const routine of routinesList) {
+      if (!routine.id || !routine.title || !routine.type) {
         return {
           success: false,
-          error: `A master routine item is missing required fields (id, title, type, or recurrence).`,
+          error: `A master routine item is missing required fields (id, title, or type).`,
         };
       }
     }
@@ -83,10 +91,10 @@ export function validateAndParseBackup(
     return {
       success: true,
       data: {
-        version: parsed.version || '1.0.0',
+        version: String(parsed.version || '1.0.0'),
         exportedAt: parsed.exportedAt || new Date().toISOString(),
-        daySchedules: parsed.daySchedules,
-        masterRoutines: parsed.masterRoutines,
+        daySchedules: schedulesMap,
+        masterRoutines: routinesList,
       },
     };
   } catch (err: unknown) {
@@ -94,3 +102,4 @@ export function validateAndParseBackup(
     return { success: false, error: `Could not parse JSON: ${msg}` };
   }
 }
+

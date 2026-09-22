@@ -46,6 +46,10 @@ interface ScheduleState {
   statusFilter: StatusFilter;
   priorityFilter: PriorityFilter;
 
+  // Defensive Storage Alert State
+  storageWarning: string | null;
+  setStorageWarning: (msg: string | null) => void;
+
   // View Navigation Action
   setActiveView: (view: AppView) => void;
 
@@ -128,16 +132,25 @@ async function saveToStorage(
     await set(STORAGE_KEY_ROUTINES, routines);
     await set(STORAGE_KEY_ACTIVE_DAY, activeDay);
     await set(STORAGE_KEY_ACTIVE_VIEW, activeView);
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn('IDB save failed:', err);
+    if (err instanceof Error) {
+      if (err.name === 'QuotaExceededError' || err.message.toLowerCase().includes('quota')) {
+        useScheduleStore.getState().setStorageWarning('Browser storage quota exceeded. Please export a backup and clear older tasks.');
+      } else if (err.name === 'SecurityError') {
+        useScheduleStore.getState().setStorageWarning('Private browsing permissions are preventing persistent local storage.');
+      }
+    }
   }
   try {
     localStorage.setItem(STORAGE_KEY_SCHEDULES, JSON.stringify(schedules));
     localStorage.setItem(STORAGE_KEY_ROUTINES, JSON.stringify(routines));
     localStorage.setItem(STORAGE_KEY_ACTIVE_DAY, activeDay);
     localStorage.setItem(STORAGE_KEY_ACTIVE_VIEW, activeView);
-  } catch {
-    // LocalStorage fallback error ignored
+  } catch (lsErr: unknown) {
+    if (lsErr instanceof Error && (lsErr.name === 'QuotaExceededError' || lsErr.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+      useScheduleStore.getState().setStorageWarning('Browser local storage quota reached. Please export a backup to avoid data loss.');
+    }
   }
 }
 
@@ -167,6 +180,10 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
   searchQuery: '',
   statusFilter: 'all',
   priorityFilter: 'all',
+
+  // Defensive Storage Alert State
+  storageWarning: null,
+  setStorageWarning: (msg: string | null) => setStore({ storageWarning: msg }),
 
   initializeStore: async () => {
     try {

@@ -16,9 +16,10 @@ import { MasterRoutineModal } from './components/MasterRoutineModal';
 import { DataManagementModal } from './components/DataManagementModal';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { AlertTriangle, X } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const { initializeStore, isInitialized, activeView } = useScheduleStore();
+  const { initializeStore, isInitialized, activeView, storageWarning, setStorageWarning } = useScheduleStore();
 
   useKeyboardShortcuts();
 
@@ -41,6 +42,23 @@ export const App: React.FC = () => {
     <div className="min-h-screen bg-canvas-soft dark:bg-slate-950 text-ink dark:text-slate-100 flex flex-col antialiased selection:bg-ink selection:text-white dark:selection:bg-slate-100 dark:selection:text-slate-900 transition-colors">
       {/* Top Header */}
       <TopBar />
+
+      {/* Defensive Storage Warning Banner */}
+      {storageWarning && (
+        <div className="bg-amber-100 border-b border-amber-300 text-amber-950 dark:bg-amber-950/60 dark:border-amber-800 dark:text-amber-200 px-4 py-2 text-xs font-mono flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+            <span>{storageWarning}</span>
+          </div>
+          <button
+            onClick={() => setStorageWarning(null)}
+            className="p-1 hover:bg-amber-200/60 dark:hover:bg-amber-900/60 rounded text-amber-900 dark:text-amber-200"
+            title="Dismiss warning"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Main Content Body */}
       <main className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">

@@ -59,6 +59,8 @@ export function calculateDuration(start: string, end: string): number {
   return TOTAL_DAY_MINUTES - startMin + endMin;
 }
 
+export const calculateDurationMinutes = calculateDuration;
+
 /**
  * Computes 24-hour day budget metrics against the strict 1,440-minute pool.
  */

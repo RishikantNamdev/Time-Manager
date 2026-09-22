@@ -55,7 +55,7 @@ export const BreakCard: React.FC<BreakCardProps> = ({
               {breakItem.title}
             </span>
 
-            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-canvas dark:bg-slate-800 text-ink-mute dark:text-slate-300 border border-hairline dark:border-slate-700 uppercase">
+            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full text-teal-900 bg-teal-100 border border-teal-300 dark:text-teal-200 dark:bg-teal-950/40 dark:border-teal-800 uppercase">
               Rest
             </span>
 
@@ -69,8 +69,8 @@ export const BreakCard: React.FC<BreakCardProps> = ({
             )}
 
             {isOverlapping && (
-              <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 font-semibold">
-                <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+              <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full text-amber-950 bg-amber-100 border border-amber-300 dark:text-amber-200 dark:bg-amber-950/40 dark:border-amber-800 font-semibold">
+                <AlertTriangle className="w-3 h-3 text-amber-700 dark:text-amber-400" />
                 <span>
                   Overlaps with {conflictingTitle || 'conflicting block'}{' '}
                   {overlappingMinutes ? `(+${overlappingMinutes} min double-counted)` : ''}

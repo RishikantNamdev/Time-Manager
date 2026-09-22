@@ -236,3 +236,48 @@ export function findFreeSlots(items: ScheduleItem[]): FreeSlot[] {
 
   return freeSlots;
 }
+
+/**
+ * Converts a 24-hour 'HH:mm' string to 12-hour components (hour 1-12, minute 0-59, period AM/PM).
+ */
+export function parse24To12(time24: string): { hour: number; minute: number; period: 'AM' | 'PM' } {
+  if (!time24 || !time24.includes(':')) {
+    return { hour: 12, minute: 0, period: 'AM' };
+  }
+  const [hoursStr, minutesStr] = time24.split(':');
+  let hours = parseInt(hoursStr, 10);
+  if (isNaN(hours)) hours = 0;
+  let minutes = parseInt(minutesStr, 10);
+  if (isNaN(minutes)) minutes = 0;
+
+  hours = Math.min(Math.max(hours, 0), 23);
+  minutes = Math.min(Math.max(minutes, 0), 59);
+
+  const period: 'AM' | 'PM' = hours >= 12 ? 'PM' : 'AM';
+  let hour = hours % 12;
+  if (hour === 0) hour = 12;
+
+  return { hour, minute: minutes, period };
+}
+
+/**
+ * Converts 12-hour components (hour 1-12, minute 0-59, period AM/PM) into standard 24-hour 'HH:mm' string.
+ */
+export function format12To24(hour: number, minute: number, period: 'AM' | 'PM'): string {
+  let h = (hour || 0) % 12;
+  if (period === 'PM') {
+    h += 12;
+  }
+  const m = Math.min(Math.max(minute || 0, 0), 59);
+  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Formats a 24-hour 'HH:mm' string to human-readable 12-hour format (e.g., '2:30 PM' or '9:00 AM').
+ */
+export function format24To12Display(time24?: string): string {
+  if (!time24) return '';
+  const { hour, minute, period } = parse24To12(time24);
+  return `${hour}:${minute.toString().padStart(2, '0')} ${period}`;
+}
+

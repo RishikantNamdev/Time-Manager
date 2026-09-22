@@ -1,4 +1,4 @@
-import { ScheduleItem, DayBudget, TimeOverlap, FreeSlot } from '../types/schedule';
+import { ScheduleItem, DayBudget, FreeSlot } from '../types/schedule';
 
 export const TOTAL_DAY_MINUTES = 1440;
 
@@ -99,7 +99,7 @@ export function calculateDayBudget(items: ScheduleItem[]): DayBudget {
   };
 }
 
-interface TimeInterval {
+export interface TimeInterval {
   start: number;
   end: number;
 }
@@ -107,7 +107,7 @@ interface TimeInterval {
 /**
  * Converts a scheduled item into one or two [start, end] intervals (handling midnight rollover).
  */
-function getItemIntervals(item: ScheduleItem): TimeInterval[] {
+export function getItemIntervals(item: Pick<ScheduleItem, 'startTime' | 'endTime'>): TimeInterval[] {
   if (!item.startTime || !item.endTime) return [];
   const start = parseTimeToMinutes(item.startTime);
   const end = parseTimeToMinutes(item.endTime);
@@ -125,47 +125,6 @@ function getItemIntervals(item: ScheduleItem): TimeInterval[] {
       { start: 0, end },
     ];
   }
-}
-
-/**
- * Identifies collisions where two items overlap in time.
- * Evaluates (startA < endB && endA > startB) across minute intervals.
- */
-export function detectOverlaps(items: ScheduleItem[]): TimeOverlap[] {
-  const overlaps: TimeOverlap[] = [];
-  const fixedItems = items.filter((item) => item.startTime && item.endTime);
-
-  for (let i = 0; i < fixedItems.length; i++) {
-    const itemA = fixedItems[i];
-    const intervalsA = getItemIntervals(itemA);
-
-    for (let j = i + 1; j < fixedItems.length; j++) {
-      const itemB = fixedItems[j];
-      const intervalsB = getItemIntervals(itemB);
-
-      let totalOverlapMinutes = 0;
-
-      for (const intA of intervalsA) {
-        for (const intB of intervalsB) {
-          const overlapStart = Math.max(intA.start, intB.start);
-          const overlapEnd = Math.min(intA.end, intB.end);
-          if (overlapStart < overlapEnd) {
-            totalOverlapMinutes += overlapEnd - overlapStart;
-          }
-        }
-      }
-
-      if (totalOverlapMinutes > 0) {
-        overlaps.push({
-          itemA,
-          itemB,
-          overlapMinutes: totalOverlapMinutes,
-        });
-      }
-    }
-  }
-
-  return overlaps;
 }
 
 /**

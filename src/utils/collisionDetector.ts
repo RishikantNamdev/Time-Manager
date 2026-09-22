@@ -1,10 +1,7 @@
 import { ScheduleItem } from '../types/schedule';
-import { parseTimeToMinutes, TOTAL_DAY_MINUTES, format24To12Display } from './timeMath';
+import { format24To12Display, getItemIntervals, TimeInterval } from './timeMath';
 
-export interface TimeInterval {
-  start: number;
-  end: number;
-}
+export { getItemIntervals, type TimeInterval };
 
 export interface ScheduleCollision {
   itemA: ScheduleItem;
@@ -29,30 +26,6 @@ export interface CandidateCollisionResult {
   hasCollision: boolean;
   conflictingItem?: ScheduleItem;
   overlapMinutes: number;
-}
-
-/**
- * Converts a scheduled item into one or two [start, end] intervals in minutes [0, 1440].
- * Accounts for overnight rollover spanning past midnight.
- */
-export function getItemIntervals(item: Pick<ScheduleItem, 'startTime' | 'endTime'>): TimeInterval[] {
-  if (!item.startTime || !item.endTime) return [];
-  const start = parseTimeToMinutes(item.startTime);
-  const end = parseTimeToMinutes(item.endTime);
-
-  if (start === end) {
-    return [];
-  }
-
-  if (start < end) {
-    return [{ start, end }];
-  } else {
-    // Overnight rollover spanning past midnight
-    return [
-      { start, end: TOTAL_DAY_MINUTES },
-      { start: 0, end },
-    ];
-  }
 }
 
 /**

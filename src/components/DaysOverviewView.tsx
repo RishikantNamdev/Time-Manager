@@ -1,7 +1,8 @@
 import React from 'react';
 import { useScheduleStore } from '../store/useScheduleStore';
 import { DayOfWeek } from '../types/schedule';
-import { calculateDayBudget, formatDuration, TOTAL_DAY_MINUTES, detectOverlaps, format24To12Display } from '../utils/timeMath';
+import { calculateDayBudget, formatDuration, TOTAL_DAY_MINUTES, format24To12Display } from '../utils/timeMath';
+import { detectScheduleCollisions } from '../utils/collisionDetector';
 import { ArrowRight, AlertTriangle } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -76,7 +77,7 @@ export const DaysOverviewView: React.FC = () => {
         {DAYS_CONFIG.map(({ key, name, short, dayIndex }) => {
           const items = getResolvedItemsForDay(key);
           const budget = calculateDayBudget(items);
-          const overlaps = detectOverlaps(items);
+          const overlaps = detectScheduleCollisions(items);
           const isToday = todayIndex === dayIndex;
 
           const taskPercent = Math.min((budget.taskMinutes / TOTAL_DAY_MINUTES) * 100, 100);

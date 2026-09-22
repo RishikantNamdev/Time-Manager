@@ -53,12 +53,6 @@ export interface DayBudget {
   completedTasksCount: number;
 }
 
-export interface TimeOverlap {
-  itemA: ScheduleItem;
-  itemB: ScheduleItem;
-  overlapMinutes: number;
-}
-
 export interface FreeSlot {
   startTime: string;
   endTime: string;

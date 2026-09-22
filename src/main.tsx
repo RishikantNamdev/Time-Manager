@@ -24,6 +24,6 @@ if ('serviceWorker' in navigator) {
       .then((registration) => {
         registration.update();
       })
-      .catch((error) => console.log('SW registration failed:', error));
+      .catch((error) => console.warn('SW registration failed:', error));
   });
 }

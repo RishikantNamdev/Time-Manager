@@ -1,6 +1,6 @@
 import React from 'react';
 import { useScheduleStore } from '../store/useScheduleStore';
-import { useTheme } from '@/hooks/useTheme';
+import { useTheme } from '../hooks/useTheme';
 import { useTaskNotifications } from '../hooks/useTaskNotifications';
 import { calculateDayBudget } from '../utils/timeMath';
 import { DayOfWeek } from '../types/schedule';

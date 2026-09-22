@@ -8,7 +8,8 @@ import {
   TaskCategory,
   MasterRoutineItem,
 } from '../types/schedule';
-import { calculateDuration, formatDuration } from '../utils/timeMath';
+import { calculateDuration, formatDuration, addMinutesToTime } from '../utils/timeMath';
+import { TimePicker12 } from './TimePicker12';
 import { X, Clock, AlertCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -301,27 +302,80 @@ export const MasterRoutineModal: React.FC = () => {
               <span>Time Window</span>
             </label>
 
-            <div className="grid grid-cols-2 gap-3 mt-1">
-              <div>
-                <label htmlFor="routine-start" className="text-[11px] font-mono text-ink-mute dark:text-slate-400">Start Time</label>
-                <input
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="routine-start" className="text-[11px] font-mono text-ink-mute dark:text-slate-400">Start Time</label>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setStartTime(addMinutesToTime(startTime, 15))}
+                      className="px-1.5 py-0.5 text-[10px] font-mono rounded-xs border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-ink-mute hover:text-ink dark:text-slate-400 dark:hover:text-white transition-colors"
+                      title="Advance start time by 15m"
+                    >
+                      +15m
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStartTime(addMinutesToTime(startTime, 30))}
+                      className="px-1.5 py-0.5 text-[10px] font-mono rounded-xs border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-ink-mute hover:text-ink dark:text-slate-400 dark:hover:text-white transition-colors"
+                      title="Advance start time by 30m"
+                    >
+                      +30m
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStartTime(addMinutesToTime(startTime, 60))}
+                      className="px-1.5 py-0.5 text-[10px] font-mono rounded-xs border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-ink-mute hover:text-ink dark:text-slate-400 dark:hover:text-white transition-colors"
+                      title="Advance start time by 1h"
+                    >
+                      +1h
+                    </button>
+                  </div>
+                </div>
+                <TimePicker12
                   id="routine-start"
-                  type="time"
-                  required
+                  label="Start Time"
                   value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full h-9 px-3 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-body-sm font-mono text-ink dark:text-white focus:outline-none focus:border-ink dark:focus:border-slate-500"
+                  onChange={setStartTime}
                 />
               </div>
-              <div>
-                <label htmlFor="routine-end" className="text-[11px] font-mono text-ink-mute dark:text-slate-400">End Time</label>
-                <input
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="routine-end" className="text-[11px] font-mono text-ink-mute dark:text-slate-400">End Time</label>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setEndTime(addMinutesToTime(endTime, 15))}
+                      className="px-1.5 py-0.5 text-[10px] font-mono rounded-xs border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-ink-mute hover:text-ink dark:text-slate-400 dark:hover:text-white transition-colors"
+                      title="Advance end time by 15m"
+                    >
+                      +15m
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndTime(addMinutesToTime(endTime, 30))}
+                      className="px-1.5 py-0.5 text-[10px] font-mono rounded-xs border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-ink-mute hover:text-ink dark:text-slate-400 dark:hover:text-white transition-colors"
+                      title="Advance end time by 30m"
+                    >
+                      +30m
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndTime(addMinutesToTime(endTime, 60))}
+                      className="px-1.5 py-0.5 text-[10px] font-mono rounded-xs border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-ink-mute hover:text-ink dark:text-slate-400 dark:hover:text-white transition-colors"
+                      title="Advance end time by 1h"
+                    >
+                      +1h
+                    </button>
+                  </div>
+                </div>
+                <TimePicker12
                   id="routine-end"
-                  type="time"
-                  required
+                  label="End Time"
                   value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                  className="w-full h-9 px-3 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-body-sm font-mono text-ink dark:text-white focus:outline-none focus:border-ink dark:focus:border-slate-500"
+                  onChange={setEndTime}
                 />
               </div>
             </div>

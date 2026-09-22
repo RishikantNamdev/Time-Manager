@@ -1,7 +1,7 @@
 import React from 'react';
 import { useScheduleStore } from '../store/useScheduleStore';
 import { MasterRoutineItem } from '../types/schedule';
-import { formatDuration } from '../utils/timeMath';
+import { formatDuration, format24To12Display } from '../utils/timeMath';
 import {
   Repeat,
   Plus,
@@ -174,7 +174,7 @@ export const MasterRoutineView: React.FC = () => {
                   <div className="flex items-center gap-1.5 text-ink-mute">
                     <Clock className="w-3.5 h-3.5" />
                     <span className="text-ink-body font-medium">
-                      {routine.startTime} – {routine.endTime}
+                      {format24To12Display(routine.startTime)} – {format24To12Display(routine.endTime)}
                     </span>
                   </div>
 

@@ -1,13 +1,16 @@
 import React from 'react';
 import { useScheduleStore } from '../store/useScheduleStore';
 import { useTheme } from '@/hooks/useTheme';
+import { useTaskNotifications } from '../hooks/useTaskNotifications';
 import { calculateDayBudget } from '../utils/timeMath';
 import { DayOfWeek } from '../types/schedule';
-import { Clock, RotateCcw, ShieldCheck, Database, Sun, Moon } from 'lucide-react';
+import { Clock, RotateCcw, ShieldCheck, Database, Sun, Moon, Bell, BellOff } from 'lucide-react';
+import { clsx } from 'clsx';
 
 export const TopBar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { resetToDefaults, getResolvedItemsForDay, openDataModal } = useScheduleStore();
+  const { isSupported, permission, isEnabled, toggleNotifications } = useTaskNotifications();
 
   const days: DayOfWeek[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   let totalWeekActiveTasks = 0;
@@ -86,6 +89,38 @@ export const TopBar: React.FC = () => {
           >
             <RotateCcw className="w-3.5 h-3.5 text-ink-mute" />
             <span className="hidden xs:inline">Reset</span>
+          </button>
+
+          {/* Notification Alert Bell Toggle */}
+          <button
+            type="button"
+            onClick={toggleNotifications}
+            disabled={!isSupported}
+            className={clsx(
+              'relative p-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500',
+              !isSupported || permission === 'denied'
+                ? 'text-ink-mute/40 dark:text-slate-600 cursor-not-allowed'
+                : isEnabled
+                  ? 'text-brand-link dark:text-blue-400 bg-blue-500/10 dark:bg-blue-500/20'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            )}
+            title={
+              !isSupported
+                ? 'Web Notifications are not supported by this browser'
+                : permission === 'denied'
+                  ? 'Notifications are blocked in your browser settings'
+                  : isEnabled
+                    ? 'Schedule alerts enabled (click to disable)'
+                    : 'Enable schedule start time alerts'
+            }
+            aria-label={
+              isEnabled ? 'Disable task notifications' : 'Enable task notifications'
+            }
+          >
+            {isEnabled ? <Bell className="w-5 h-5 fill-current" /> : <BellOff className="w-5 h-5" />}
+            {isEnabled && (
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-canvas dark:ring-slate-900" />
+            )}
           </button>
 
           <button

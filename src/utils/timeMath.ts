@@ -246,3 +246,14 @@ export function format24To12Display(time24?: string): string {
   return `${hour}:${minute.toString().padStart(2, '0')} ${period}`;
 }
 
+/**
+ * Computes human-readable Work-to-Rest ratio handling division-by-zero edge cases.
+ */
+export function calculateWorkRestRatio(workMinutes: number, restMinutes: number): string {
+  if (workMinutes === 0 && restMinutes === 0) return '0 : 0';
+  if (restMinutes === 0) return '100% Focus (0m Rest)';
+  const ratio = (workMinutes / restMinutes).toFixed(1);
+  return `${ratio} : 1`;
+}
+
+

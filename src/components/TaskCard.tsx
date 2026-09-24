@@ -44,18 +44,62 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const isMaster = masterRoutines.some((r) => r.id === task.id);
   const isOverridden = Boolean(daySchedules[selectedDay]?.overrides[task.id]);
 
-  // Focus Timer / Pomodoro Engine State
-  const initialSeconds = Math.max(1, (task.durationMinutes || 0) * 60);
-  const [timeLeft, setTimeLeft] = useState(initialSeconds);
-  const [isRunning, setIsRunning] = useState(false);
-  const [hasFinished, setHasFinished] = useState(false);
+  // Focus Timer / Pomodoro Engine State with LocalStorage Persistence
+  const timerStorageKey = `task_timer_${task.id}`;
+  const defaultTaskSeconds = Math.max(1, ((task.durationMinutes || (task as any).duration || 0) * 60));
 
-  // Only reset when task duration or ID changes, NOT when isRunning changes
+  const getSavedSeconds = (): number => {
+    try {
+      const saved = localStorage.getItem(timerStorageKey);
+      if (saved !== null) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed >= 0) {
+          return parsed;
+        }
+      }
+    } catch {
+      // LocalStorage access error handling (e.g. private browsing)
+    }
+    return defaultTaskSeconds;
+  };
+
+  const [timeLeft, setTimeLeft] = useState<number>(getSavedSeconds);
+  const [isRunning, setIsRunning] = useState(false);
+  const [hasFinished, setHasFinished] = useState(() => {
+    try {
+      const saved = localStorage.getItem(timerStorageKey);
+      if (saved !== null && parseInt(saved, 10) === 0) return true;
+    } catch {}
+    return false;
+  });
+
+  // When task ID or task duration changes, restore saved seconds or reset to default
   useEffect(() => {
-    setTimeLeft(Math.max(1, (task.durationMinutes || 0) * 60));
+    const key = `task_timer_${task.id}`;
+    let initialSecs = Math.max(1, ((task.durationMinutes || (task as any).duration || 0) * 60));
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved !== null) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed >= 0) {
+          initialSecs = parsed;
+        }
+      }
+    } catch {}
+    setTimeLeft(initialSecs);
     setIsRunning(false);
-    setHasFinished(false);
+    setHasFinished(initialSecs === 0);
   }, [task.id, task.durationMinutes]);
+
+  // When task is marked completed, clear storage and stop timer
+  useEffect(() => {
+    if (task.isCompleted) {
+      setIsRunning(false);
+      try {
+        localStorage.removeItem(timerStorageKey);
+      } catch {}
+    }
+  }, [task.isCompleted, timerStorageKey]);
 
   // Active ticking interval
   useEffect(() => {
@@ -67,24 +111,47 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           clearInterval(interval);
           setIsRunning(false);
           setHasFinished(true);
+          try {
+            localStorage.setItem(timerStorageKey, '0');
+          } catch {}
           playCompletionChime();
           return 0;
         }
-        return prev - 1;
+        const next = prev - 1;
+        try {
+          localStorage.setItem(timerStorageKey, next.toString());
+        } catch {}
+        return next;
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isRunning]);
+  }, [isRunning, timerStorageKey]);
+
+  const handleToggleTimer = () => {
+    const nextRunning = !isRunning;
+    setIsRunning(nextRunning);
+    if (!nextRunning) {
+      try {
+        localStorage.setItem(timerStorageKey, timeLeft.toString());
+      } catch {}
+    }
+  };
 
   const handleResetTimer = () => {
     setIsRunning(false);
     setHasFinished(false);
-    setTimeLeft(Math.max(1, (task.durationMinutes || 0) * 60));
+    try {
+      localStorage.removeItem(timerStorageKey);
+    } catch {}
+    setTimeLeft(defaultTaskSeconds);
   };
 
   const handleMarkDone = () => {
     setIsRunning(false);
+    try {
+      localStorage.removeItem(timerStorageKey);
+    } catch {}
     toggleTaskCompletion(task.id, selectedDay);
   };
 
@@ -131,6 +198,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       : `Delete "${task.title}"?`;
 
     if (window.confirm(confirmMessage)) {
+      try {
+        localStorage.removeItem(timerStorageKey);
+      } catch {}
       deleteScheduleItem(task.id, selectedDay);
     }
   };
@@ -162,7 +232,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <button
             type="button"
-            onClick={() => toggleTaskCompletion(task.id, selectedDay)}
+            onClick={() => {
+              if (!task.isCompleted) {
+                setIsRunning(false);
+                try {
+                  localStorage.removeItem(timerStorageKey);
+                } catch {}
+              }
+              toggleTaskCompletion(task.id, selectedDay);
+            }}
             title={task.isCompleted ? 'Mark task as pending' : 'Mark task as completed'}
             className={clsx(
               'w-5 h-5 rounded-xs border flex items-center justify-center transition-all flex-shrink-0',
@@ -300,21 +378,21 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               <>
                 <button
                   type="button"
-                  onClick={() => setIsRunning(!isRunning)}
+                  onClick={handleToggleTimer}
                   className={clsx(
                     'inline-flex items-center gap-1 px-2.5 py-1 rounded-xs border text-[11px] font-mono font-medium transition-colors shadow-level-1',
                     isRunning
                       ? 'bg-cyan-600 text-white border-cyan-600 hover:bg-cyan-700'
                       : 'bg-canvas dark:bg-slate-800 border-hairline dark:border-slate-700 hover:bg-canvas-soft-2 dark:hover:bg-slate-700 text-ink dark:text-slate-200'
                   )}
-                  title={isRunning ? 'Pause focus timer' : timeLeft < (task.durationMinutes || 0) * 60 ? 'Resume focus timer' : 'Start focus timer'}
+                  title={isRunning ? 'Pause focus timer' : timeLeft < defaultTaskSeconds ? 'Resume focus timer' : 'Start focus timer'}
                 >
                   {isRunning ? (
                     <Pause className="w-3 h-3 fill-current" />
                   ) : (
                     <Play className="w-3 h-3 fill-current" />
                   )}
-                  <span>{isRunning ? 'Pause' : timeLeft < (task.durationMinutes || 0) * 60 ? 'Resume' : 'Start'}</span>
+                  <span>{isRunning ? 'Pause' : timeLeft < defaultTaskSeconds ? 'Resume' : 'Start'}</span>
                 </button>
 
                 <button

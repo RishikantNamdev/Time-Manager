@@ -5,6 +5,7 @@ import {
   parse24To12,
   format12To24,
   format24To12Display,
+  calculateWorkRestRatio,
 } from '../timeMath';
 
 describe('timeMath', () => {
@@ -75,4 +76,24 @@ describe('timeMath', () => {
       expect(format24To12Display(undefined)).toBe('');
     });
   });
+
+  describe('calculateWorkRestRatio', () => {
+    it('returns "0 : 0" when both work and rest minutes are 0', () => {
+      expect(calculateWorkRestRatio(0, 0)).toBe('0 : 0');
+    });
+
+    it('returns "100% Focus (0m Rest)" when rest minutes are 0 and work is positive', () => {
+      expect(calculateWorkRestRatio(60, 0)).toBe('100% Focus (0m Rest)');
+      expect(calculateWorkRestRatio(1, 0)).toBe('100% Focus (0m Rest)');
+      expect(calculateWorkRestRatio(480, 0)).toBe('100% Focus (0m Rest)');
+    });
+
+    it('computes rounded ratio correctly when rest minutes > 0', () => {
+      expect(calculateWorkRestRatio(90, 30)).toBe('3.0 : 1');
+      expect(calculateWorkRestRatio(100, 50)).toBe('2.0 : 1');
+      expect(calculateWorkRestRatio(50, 100)).toBe('0.5 : 1');
+      expect(calculateWorkRestRatio(125, 45)).toBe('2.8 : 1');
+    });
+  });
 });
+

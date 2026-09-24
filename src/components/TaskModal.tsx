@@ -367,7 +367,7 @@ export const TaskModal: React.FC = () => {
                     type="number"
                     min="1"
                     max="1440"
-                    step="5"
+                    step="1"
                     value={floatingDuration === 0 ? '' : floatingDuration}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => {
@@ -375,6 +375,7 @@ export const TaskModal: React.FC = () => {
                       setFloatingDuration(val === '' ? 0 : Math.max(0, parseInt(val, 10) || 0));
                     }}
                     className="w-full h-9 px-3 rounded-sm border border-hairline dark:border-slate-700 bg-canvas dark:bg-slate-800 text-body-sm font-mono text-ink dark:text-white focus:outline-none focus:border-ink dark:focus:border-slate-500"
+                    required
                   />
                 </div>
                 <div className="text-caption-mono text-ink dark:text-slate-200 font-semibold mt-4">

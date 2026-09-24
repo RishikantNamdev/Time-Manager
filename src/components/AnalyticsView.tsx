@@ -1,7 +1,7 @@
 import React from 'react';
 import { useScheduleStore } from '../store/useScheduleStore';
 import { DayOfWeek, TaskItem } from '../types/schedule';
-import { formatDuration } from '../utils/timeMath';
+import { formatDuration, calculateWorkRestRatio } from '../utils/timeMath';
 import {
   TrendingUp,
   Scale,
@@ -39,7 +39,7 @@ export const AnalyticsView: React.FC = () => {
   for (const day of DAYS) {
     const items = getResolvedItemsForDay(day);
     for (const item of items) {
-      const duration = item.durationMinutes || 0;
+      const duration = item.durationMinutes || (item as any).floatingDuration || (item as any).duration || 0;
       const cat = item.category || (item.type === 'break' ? 'Rest' : 'General');
       categoryMinutesMap[cat] = (categoryMinutesMap[cat] || 0) + duration;
 
@@ -50,10 +50,11 @@ export const AnalyticsView: React.FC = () => {
         if (task.isCompleted) {
           totalCompletedTasks++;
         }
-        if (task.priority === 'high') {
+        const p = (task.priority || 'medium').toLowerCase();
+        if (p === 'high' || p === 'p1') {
           priorityStats.high.count++;
           priorityStats.high.minutes += duration;
-        } else if (task.priority === 'low') {
+        } else if (p === 'low' || p === 'p3' || p === 'p4') {
           priorityStats.low.count++;
           priorityStats.low.minutes += duration;
         } else {
@@ -69,12 +70,15 @@ export const AnalyticsView: React.FC = () => {
   const totalScheduledMinutes = totalTaskMinutes + totalBreakMinutes;
 
   // Work-to-Rest Ratio Calculation
-  const rawRatio = totalBreakMinutes > 0 ? totalTaskMinutes / totalBreakMinutes : totalTaskMinutes > 0 ? 10 : 1;
-  const normalizedRatio = rawRatio.toFixed(1);
+  const workRestRatioDisplay = calculateWorkRestRatio(totalTaskMinutes, totalBreakMinutes);
+  const rawRatio = totalBreakMinutes > 0 ? totalTaskMinutes / totalBreakMinutes : totalTaskMinutes > 0 ? 10 : 0;
 
   let ratioDescriptor = 'Balanced Output';
   let ratioBadgeClass = 'bg-blue-50 text-blue-700 border-blue-200';
-  if (rawRatio >= 0.8 && rawRatio <= 1.4) {
+  if (totalBreakMinutes === 0 && totalTaskMinutes > 0) {
+    ratioDescriptor = 'High Strain / Review Rest';
+    ratioBadgeClass = 'bg-rose-50 text-rose-700 border-rose-200';
+  } else if (rawRatio >= 0.8 && rawRatio <= 1.4) {
     ratioDescriptor = 'Optimal Recovery & Health';
     ratioBadgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
   } else if (rawRatio > 1.4 && rawRatio <= 2.2) {
@@ -161,7 +165,7 @@ export const AnalyticsView: React.FC = () => {
           </div>
           <div className="mt-3">
             <div className="text-3xl font-mono font-semibold text-ink tracking-tight flex items-baseline gap-2">
-              <span>{normalizedRatio} : 1</span>
+              <span>{workRestRatioDisplay}</span>
               <span className={clsx('text-[10px] font-mono px-2 py-0.5 rounded-full border font-semibold', ratioBadgeClass)}>
                 {ratioDescriptor}
               </span>

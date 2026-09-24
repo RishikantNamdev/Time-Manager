@@ -161,6 +161,7 @@ export const TimePicker12: React.FC<TimePicker12Props> = ({ id, idPrefix, label 
           type="number"
           min={1}
           max={12}
+          step={1}
           aria-label={`${label} Hour`}
           value={hourInput}
           onFocus={(e) => e.target.select()}
@@ -175,6 +176,7 @@ export const TimePicker12: React.FC<TimePicker12Props> = ({ id, idPrefix, label 
           type="number"
           min={0}
           max={59}
+          step={1}
           aria-label={`${label} Minute`}
           value={minuteInput}
           onFocus={(e) => e.target.select()}

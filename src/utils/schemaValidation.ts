@@ -10,7 +10,7 @@ export const TaskSchema = z.object({
   priority: z.enum(['p1', 'p2', 'p3', 'p4', 'high', 'medium', 'low']).optional(),
   category: z.string().default('General'),
   completed: z.boolean().default(false),
-  isCompleted: z.boolean().optional(),
+  isCompleted: z.boolean().default(false),
   notes: z.string().optional(),
   tags: z.array(z.string()).optional(),
 }).passthrough();

@@ -245,6 +245,7 @@ export function extractScheduleJsonFromText(
 
     const isFloating = !startTime || !endTime || Boolean(raw.isFloating);
     const now = Date.now();
+    const isCompleted = Boolean(raw.isCompleted ?? raw.completed ?? false);
 
     const candidateItem: Record<string, any> = {
       ...raw,
@@ -256,8 +257,8 @@ export function extractScheduleJsonFromText(
       endTime: isFloating ? undefined : endTime,
       priority,
       category,
-      completed: false,
-      isCompleted: false,
+      completed: isCompleted,
+      isCompleted,
       isFloating,
       createdAt: typeof raw.createdAt === 'number' ? raw.createdAt : now,
       updatedAt: typeof raw.updatedAt === 'number' ? raw.updatedAt : now,

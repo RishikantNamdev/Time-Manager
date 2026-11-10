@@ -61,7 +61,7 @@ describe('aiPromptTemplate', () => {
       expect(task1.endTime).toBe('10:30');
       expect(task1.priority).toBe('p1');
       expect(task1.category).toBe('Work');
-      expect(task1.completed).toBe(false);
+      expect(task1.isCompleted).toBe(false);
 
       expect(task2.id).toBe('ai-task-2');
       expect(task2.title).toBe('Morning Coffee & Break');
@@ -150,9 +150,7 @@ Hope that helps you organize your evening!`;
       expect(item1.id).not.toBe(item2.id);
 
       // Completed is forced false
-      expect(item1.completed).toBe(false);
       expect(item1.isCompleted).toBe(false);
-      expect(item2.completed).toBe(false);
       expect(item2.isCompleted).toBe(false);
 
       // Duration clamped > 0
@@ -220,6 +218,7 @@ Hope that helps you organize your evening!`;
                 priority: 'p2',
                 category: 'Work',
                 completed: false,
+                isCompleted: false,
               },
             ],
             overrides: {},
@@ -238,6 +237,7 @@ Hope that helps you organize your evening!`;
                 priority: 'p1',
                 category: 'Work',
                 completed: false,
+                isCompleted: false,
               },
             ],
             overrides: {},

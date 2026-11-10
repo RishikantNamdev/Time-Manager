@@ -62,6 +62,10 @@ interface ScheduleState {
   statusFilter: StatusFilter;
   priorityFilter: PriorityFilter;
 
+  // Scope filter: 'day' | 'habits'
+  timelineScope: 'day' | 'habits';
+  setTimelineScope: (scope: 'day' | 'habits') => void;
+
   // Defensive Storage Alert State
   storageWarning: string | null;
   setStorageWarning: (msg: string | null) => void;
@@ -203,6 +207,10 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
   statusFilter: 'all',
   priorityFilter: 'all',
 
+  // Scope filter: 'day' | 'habits'
+  timelineScope: 'day',
+  setTimelineScope: (scope: 'day' | 'habits') => setStore({ timelineScope: scope }),
+
   // Defensive Storage Alert State
   storageWarning: null,
   setStorageWarning: (msg: string | null) => setStore({ storageWarning: msg }),
@@ -257,7 +265,7 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
   },
 
   selectDay: (day: DayOfWeek) => {
-    setStore({ selectedDay: day });
+    setStore({ selectedDay: day, timelineScope: 'day' });
     const { daySchedules, masterRoutines, activeView } = getStore();
     saveToStorage(daySchedules, masterRoutines, day, activeView);
   },
@@ -429,6 +437,7 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
       masterRoutines: INITIAL_MASTER_ROUTINES,
       selectedDay: today,
       activeView: 'daily',
+      timelineScope: 'day',
       isModalOpen: false,
       editingItem: null,
       modalPrefill: null,

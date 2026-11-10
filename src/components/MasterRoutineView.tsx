@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useScheduleStore } from '../store/useScheduleStore';
 import { MasterRoutineItem } from '../types/schedule';
 import { formatDuration, format24To12Display } from '../utils/timeMath';
@@ -13,8 +13,51 @@ import {
   Layers,
   Sparkles,
   Info,
+  Sun,
+  Briefcase,
+  CalendarDays,
 } from 'lucide-react';
 import { clsx } from 'clsx';
+
+type RoutineTab = 'all' | 'daily' | 'weekdays' | 'weekends';
+
+function isDailyRoutine(routine: MasterRoutineItem): boolean {
+  if (routine.recurrence === 'daily') return true;
+  if (
+    routine.recurrence === 'custom' &&
+    routine.customDays &&
+    routine.customDays.length === 7
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function isWeekdayRoutine(routine: MasterRoutineItem): boolean {
+  if (routine.recurrence === 'weekdays') return true;
+  if (
+    routine.recurrence === 'custom' &&
+    routine.customDays &&
+    routine.customDays.length > 0 &&
+    routine.customDays.every((d) => ['mon', 'tue', 'wed', 'thu', 'fri'].includes(d))
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function isWeekendRoutine(routine: MasterRoutineItem): boolean {
+  if (routine.recurrence === 'weekends') return true;
+  if (
+    routine.recurrence === 'custom' &&
+    routine.customDays &&
+    routine.customDays.length > 0 &&
+    routine.customDays.every((d) => ['sat', 'sun'].includes(d))
+  ) {
+    return true;
+  }
+  return false;
+}
 
 export const MasterRoutineView: React.FC = () => {
   const {
@@ -24,18 +67,55 @@ export const MasterRoutineView: React.FC = () => {
     deleteMasterRoutine,
   } = useScheduleStore();
 
+  const [activeTab, setActiveTab] = useState<RoutineTab>('all');
+
+  const tabCounts = useMemo(() => {
+    return {
+      all: masterRoutines.length,
+      daily: masterRoutines.filter(isDailyRoutine).length,
+      weekdays: masterRoutines.filter(isWeekdayRoutine).length,
+      weekends: masterRoutines.filter(isWeekendRoutine).length,
+    };
+  }, [masterRoutines]);
+
+  const filteredRoutines = useMemo(() => {
+    switch (activeTab) {
+      case 'daily':
+        return masterRoutines.filter(isDailyRoutine);
+      case 'weekdays':
+        return masterRoutines.filter(isWeekdayRoutine);
+      case 'weekends':
+        return masterRoutines.filter(isWeekendRoutine);
+      default:
+        return masterRoutines;
+    }
+  }, [masterRoutines, activeTab]);
+
   const getRecurrenceBadge = (routine: MasterRoutineItem) => {
     switch (routine.recurrence) {
       case 'daily':
-        return { label: 'Every Day', class: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' };
+        return {
+          label: 'Every Day',
+          class:
+            'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+        };
       case 'weekdays':
-        return { label: 'Weekdays (M-F)', class: 'bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800' };
+        return {
+          label: 'Weekdays (M-F)',
+          class:
+            'bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+        };
       case 'weekends':
-        return { label: 'Weekends (Sat-Sun)', class: 'bg-purple-50 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800' };
+        return {
+          label: 'Weekends (Sat-Sun)',
+          class:
+            'bg-purple-50 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800',
+        };
       case 'custom':
         return {
           label: routine.customDays?.map((d) => d.toUpperCase()).join(', ') || 'Custom',
-          class: 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+          class:
+            'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800',
         };
       default:
         return { label: routine.recurrence, class: 'bg-canvas-soft border-hairline text-ink-body' };
@@ -51,6 +131,13 @@ export const MasterRoutineView: React.FC = () => {
       deleteMasterRoutine(id);
     }
   };
+
+  const tabsConfig = [
+    { id: 'all' as RoutineTab, label: 'All Routines', count: tabCounts.all, icon: Layers },
+    { id: 'daily' as RoutineTab, label: 'Everyday / Daily', count: tabCounts.daily, icon: Repeat },
+    { id: 'weekdays' as RoutineTab, label: 'Weekdays', count: tabCounts.weekdays, icon: Briefcase },
+    { id: 'weekends' as RoutineTab, label: 'Weekends', count: tabCounts.weekends, icon: Sun },
+  ];
 
   return (
     <div className="space-y-6">
@@ -78,6 +165,42 @@ export const MasterRoutineView: React.FC = () => {
         </button>
       </div>
 
+      {/* Segmented Filter Tab Bar */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <div className="p-1 rounded-md bg-canvas-soft dark:bg-slate-800/60 border border-hairline dark:border-slate-700 flex items-center gap-1">
+          {tabsConfig.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={clsx(
+                  'px-3 py-1.5 rounded text-xs font-medium transition-all flex items-center gap-2 whitespace-nowrap',
+                  isActive
+                    ? 'bg-ink text-white dark:bg-slate-700 dark:text-white shadow-sm font-semibold'
+                    : 'text-ink-mute hover:text-ink dark:hover:text-slate-200 hover:bg-canvas dark:hover:bg-slate-700/50'
+                )}
+              >
+                <Icon className={clsx('w-3.5 h-3.5', isActive ? 'text-white dark:text-cyan-400' : 'text-ink-mute')} />
+                <span>{tab.label}</span>
+                <span
+                  className={clsx(
+                    'text-[10px] font-mono px-1.5 py-0.2 rounded-full font-semibold',
+                    isActive
+                      ? 'bg-white/20 text-white dark:bg-slate-600'
+                      : 'bg-canvas-soft-2 text-ink-mute border border-hairline'
+                  )}
+                >
+                  {tab.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Inheritance Architecture Info Callout */}
       <div className="p-4 rounded-md bg-canvas border border-hairline shadow-level-1 flex items-start gap-3">
         <div className="w-8 h-8 rounded-sm bg-canvas-soft-2 flex items-center justify-center text-brand-link border border-hairline flex-shrink-0 mt-0.5">
@@ -95,25 +218,50 @@ export const MasterRoutineView: React.FC = () => {
 
       {/* Routine Cards List */}
       <div className="space-y-3">
-        {masterRoutines.length === 0 ? (
+        {filteredRoutines.length === 0 ? (
           <div className="p-12 rounded-lg bg-canvas border border-dashed border-hairline-strong text-center flex flex-col items-center justify-center shadow-level-1">
             <div className="w-12 h-12 rounded-full bg-canvas-soft border border-hairline flex items-center justify-center text-ink-mute mb-3 shadow-level-1">
-              <Repeat className="w-6 h-6 stroke-[1.5]" />
+              {activeTab === 'daily' ? (
+                <Repeat className="w-6 h-6 stroke-[1.5]" />
+              ) : activeTab === 'weekdays' ? (
+                <Briefcase className="w-6 h-6 stroke-[1.5]" />
+              ) : activeTab === 'weekends' ? (
+                <Sun className="w-6 h-6 stroke-[1.5]" />
+              ) : (
+                <CalendarDays className="w-6 h-6 stroke-[1.5]" />
+              )}
             </div>
-            <h3 className="text-body-md font-medium text-ink">No master routines defined</h3>
+
+            <h3 className="text-body-md font-medium text-ink">
+              {activeTab === 'daily'
+                ? 'No everyday routines yet'
+                : activeTab === 'weekdays'
+                ? 'No weekday routines yet'
+                : activeTab === 'weekends'
+                ? 'No weekend routines yet'
+                : 'No master routines defined'}
+            </h3>
+
             <p className="text-body-sm text-ink-mute max-w-sm mt-1 mb-4">
-              Add recurring routines like sleep blocks, morning prep, or daily workouts to automatically budget them across your week.
+              {activeTab === 'daily'
+                ? 'Add recurring habits you want to follow every single day (e.g., morning prep, evening walk, sleep blocks).'
+                : activeTab === 'weekdays'
+                ? 'Add work blocks, daily standups, or study routines active Monday through Friday.'
+                : activeTab === 'weekends'
+                ? 'Add workouts, hobbies, family time, or downtime routines active on Saturday and Sunday.'
+                : 'Add recurring habits like sleep blocks, workouts, or daily prep to budget them across your entire week.'}
             </p>
+
             <button
               type="button"
               onClick={openCreateRoutineModal}
               className="px-4 py-2 rounded-pill bg-slate-900 text-white border border-slate-700 hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 font-sans text-xs font-medium transition-all shadow-level-2"
             >
-              + Add First Routine
+              + Add {activeTab === 'daily' ? 'Everyday' : activeTab === 'weekdays' ? 'Weekday' : activeTab === 'weekends' ? 'Weekend' : 'First'} Routine
             </button>
           </div>
         ) : (
-          masterRoutines.map((routine) => {
+          filteredRoutines.map((routine) => {
             const isTask = routine.type === 'task';
             const recurrenceBadge = getRecurrenceBadge(routine);
 

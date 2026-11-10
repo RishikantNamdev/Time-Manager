@@ -11,17 +11,19 @@ export function useKeyboardShortcuts(): void {
     setActiveView,
     closeAllModals,
     toggleShortcutsModal,
+    toggleAiModal,
     isModalOpen,
     isRoutineModalOpen,
     isDataModalOpen,
     isShortcutsModalOpen,
+    isAiModalOpen,
   } = useScheduleStore();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Escape should close active modals regardless of where focus is
       if (e.key === 'Escape') {
-        if (isModalOpen || isRoutineModalOpen || isDataModalOpen || isShortcutsModalOpen) {
+        if (isModalOpen || isRoutineModalOpen || isDataModalOpen || isShortcutsModalOpen || isAiModalOpen) {
           e.preventDefault();
           closeAllModals();
         }
@@ -82,6 +84,13 @@ export function useKeyboardShortcuts(): void {
         toggleShortcutsModal();
         return;
       }
+
+      // Shift + A -> Toggle AI Schedule Importer modal
+      if (e.shiftKey && (e.key === 'A' || e.key === 'a') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        toggleAiModal();
+        return;
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -91,9 +100,11 @@ export function useKeyboardShortcuts(): void {
     setActiveView,
     closeAllModals,
     toggleShortcutsModal,
+    toggleAiModal,
     isModalOpen,
     isRoutineModalOpen,
     isDataModalOpen,
     isShortcutsModalOpen,
+    isAiModalOpen,
   ]);
 }

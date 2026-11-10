@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { get, set } from 'idb-keyval';
 import {
+  DayKey,
   DayOfWeek,
   DaySchedule,
   MasterRoutineItem,
@@ -40,6 +41,19 @@ interface ScheduleState {
 
   // Keyboard Shortcuts Modal State
   isShortcutsModalOpen: boolean;
+
+  // AI Schedule Modal State
+  isAiModalOpen: boolean;
+  openAiModal: () => void;
+  closeAiModal: () => void;
+  toggleAiModal: () => void;
+  replaceDayCustomItems: (day: DayKey, items: TaskItem[]) => Promise<void>;
+  appendDayCustomItems: (day: DayKey, items: TaskItem[]) => Promise<void>;
+
+  // Global Toast State
+  toastMessage: { text: string; type: 'success' | 'error' | 'info' } | null;
+  showToast: (text: string, type?: 'success' | 'error' | 'info') => void;
+  clearToast: () => void;
 
   // Filter & Search State
   searchQuery: string;
@@ -175,6 +189,12 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
 
   // Keyboard Shortcuts Modal State
   isShortcutsModalOpen: false,
+
+  // AI Schedule Modal State
+  isAiModalOpen: false,
+
+  // Global Toast State
+  toastMessage: null,
 
   // Filter & Search State
   searchQuery: '',
@@ -413,6 +433,8 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
       isRoutineModalOpen: false,
       editingRoutine: null,
       isDataModalOpen: false,
+      isAiModalOpen: false,
+      toastMessage: null,
       searchQuery: '',
       statusFilter: 'all',
       priorityFilter: 'all',
@@ -516,10 +538,73 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
       isRoutineModalOpen: false,
       isDataModalOpen: false,
       isShortcutsModalOpen: false,
+      isAiModalOpen: false,
       editingItem: null,
       modalPrefill: null,
       editingRoutine: null,
     });
+  },
+
+  // AI Schedule Modal Actions
+  openAiModal: () => {
+    setStore({ isAiModalOpen: true });
+  },
+
+  closeAiModal: () => {
+    setStore({ isAiModalOpen: false });
+  },
+
+  toggleAiModal: () => {
+    setStore((state) => ({ isAiModalOpen: !state.isAiModalOpen }));
+  },
+
+  replaceDayCustomItems: async (day: DayKey, items: TaskItem[]) => {
+    const state = getStore();
+    const currentSchedule = state.daySchedules[day];
+    if (!currentSchedule) return;
+
+    const updatedSchedules = {
+      ...state.daySchedules,
+      [day]: {
+        ...currentSchedule,
+        customItems: items,
+      },
+    };
+
+    setStore({ daySchedules: updatedSchedules });
+    await saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay, state.activeView);
+  },
+
+  appendDayCustomItems: async (day: DayKey, items: TaskItem[]) => {
+    const state = getStore();
+    const currentSchedule = state.daySchedules[day];
+    if (!currentSchedule) return;
+
+    const updatedSchedules = {
+      ...state.daySchedules,
+      [day]: {
+        ...currentSchedule,
+        customItems: [...currentSchedule.customItems, ...items],
+      },
+    };
+
+    setStore({ daySchedules: updatedSchedules });
+    await saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay, state.activeView);
+  },
+
+  // Global Toast Actions
+  showToast: (text: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setStore({ toastMessage: { text, type } });
+    setTimeout(() => {
+      const current = getStore().toastMessage;
+      if (current && current.text === text) {
+        setStore({ toastMessage: null });
+      }
+    }, 4000);
+  },
+
+  clearToast: () => {
+    setStore({ toastMessage: null });
   },
 
   importScheduleData: async (

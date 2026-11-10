@@ -167,19 +167,27 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
+      case 'p1':
       case 'high':
         return {
-          label: 'High',
-          class: 'bg-rose-50 text-rose-700 border-rose-200',
+          label: priority === 'p1' ? 'P1' : 'High',
+          class: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200',
         };
+      case 'p2':
+        return {
+          label: 'P2',
+          class: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:border-orange-800 dark:text-orange-200',
+        };
+      case 'p3':
       case 'medium':
         return {
-          label: 'Medium',
+          label: priority === 'p3' ? 'P3' : 'Medium',
           class: 'text-amber-950 bg-amber-100 border-amber-300 dark:text-amber-200 dark:bg-amber-950/40 dark:border-amber-800',
         };
+      case 'p4':
       case 'low':
         return {
-          label: 'Low',
+          label: priority === 'p4' ? 'P4' : 'Low',
           class: 'text-teal-900 bg-teal-100 border-teal-300 dark:text-teal-200 dark:bg-teal-950/40 dark:border-teal-800',
         };
       default:

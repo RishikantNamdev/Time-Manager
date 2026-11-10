@@ -118,6 +118,19 @@ export const KeyboardShortcutsModal: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between p-2 rounded-sm bg-canvas-soft/60 dark:bg-slate-800/40 border border-hairline dark:border-slate-800">
+                <span className="text-xs text-ink-body dark:text-slate-300">AI Schedule Importer</span>
+                <div className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 text-[11px] font-mono font-semibold bg-canvas dark:bg-slate-800 border border-hairline dark:border-slate-700 rounded-xs shadow-sm text-ink dark:text-white">
+                    Shift
+                  </kbd>
+                  <span className="text-xs text-ink-mute">+</span>
+                  <kbd className="px-1.5 py-0.5 text-[11px] font-mono font-semibold bg-canvas dark:bg-slate-800 border border-hairline dark:border-slate-700 rounded-xs shadow-sm text-ink dark:text-white">
+                    A
+                  </kbd>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-2 rounded-sm bg-canvas-soft/60 dark:bg-slate-800/40 border border-hairline dark:border-slate-800">
                 <span className="text-xs text-ink-body dark:text-slate-300">Add Entry Alternative</span>
                 <div className="flex items-center gap-1">
                   <kbd className="px-1.5 py-0.5 text-[11px] font-mono font-semibold bg-canvas dark:bg-slate-800 border border-hairline dark:border-slate-700 rounded-xs shadow-sm text-ink dark:text-white flex items-center">

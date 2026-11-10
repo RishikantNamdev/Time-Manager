@@ -1,7 +1,8 @@
-export type PriorityLevel = 'high' | 'medium' | 'low';
-export type EntryType = 'task' | 'break';
+export type PriorityLevel = 'high' | 'medium' | 'low' | 'p1' | 'p2' | 'p3' | 'p4';
+export type EntryType = 'task' | 'break' | 'rest';
 export type RecurrenceType = 'daily' | 'weekdays' | 'weekends' | 'custom';
 export type DayOfWeek = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+export type DayKey = DayOfWeek;
 export type TaskCategory = 'Work' | 'Personal' | 'Health' | 'Learning' | 'Rest' | string;
 
 export interface BaseScheduleItem {

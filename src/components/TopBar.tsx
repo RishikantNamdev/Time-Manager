@@ -4,12 +4,12 @@ import { useTheme } from '../hooks/useTheme';
 import { useTaskNotifications } from '../hooks/useTaskNotifications';
 import { calculateDayBudget } from '../utils/timeMath';
 import { DayOfWeek } from '../types/schedule';
-import { Clock, RotateCcw, ShieldCheck, Database, Sun, Moon, Bell, BellOff, Keyboard } from 'lucide-react';
+import { Clock, RotateCcw, ShieldCheck, Database, Sun, Moon, Bell, BellOff, Keyboard, Sparkles } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export const TopBar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const { resetToDefaults, getResolvedItemsForDay, openDataModal, openShortcutsModal } = useScheduleStore();
+  const { resetToDefaults, getResolvedItemsForDay, openDataModal, openShortcutsModal, openAiModal } = useScheduleStore();
   const { isSupported, permission, isEnabled, toggleNotifications } = useTaskNotifications();
 
   const days: DayOfWeek[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
@@ -121,6 +121,17 @@ export const TopBar: React.FC = () => {
             {isEnabled && (
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-canvas dark:ring-slate-900" />
             )}
+          </button>
+
+          {/* AI Schedule Importer Button */}
+          <button
+            type="button"
+            onClick={openAiModal}
+            className="p-2 rounded-lg text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
+            aria-label="AI Schedule Importer"
+            title="AI Schedule Importer"
+          >
+            <Sparkles className="w-5 h-5" />
           </button>
 
           {/* Keyboard Shortcuts Cheat Sheet Button */}

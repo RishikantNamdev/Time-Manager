@@ -15,11 +15,20 @@ import { TaskModal } from './components/TaskModal';
 import { MasterRoutineModal } from './components/MasterRoutineModal';
 import { DataManagementModal } from './components/DataManagementModal';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
+import { AiScheduleModal } from './components/AiScheduleModal';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, X, CheckCircle2, Info } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const { initializeStore, isInitialized, activeView, storageWarning, setStorageWarning } = useScheduleStore();
+  const {
+    initializeStore,
+    isInitialized,
+    activeView,
+    storageWarning,
+    setStorageWarning,
+    toastMessage,
+    clearToast,
+  } = useScheduleStore();
 
   useKeyboardShortcuts();
 
@@ -111,6 +120,33 @@ export const App: React.FC = () => {
       <MasterRoutineModal />
       <DataManagementModal />
       <KeyboardShortcutsModal />
+      <AiScheduleModal />
+
+      {/* Global Toast Notification */}
+      {toastMessage && (
+        <aside
+          aria-live="polite"
+          aria-atomic="true"
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-lg shadow-level-4 bg-canvas dark:bg-slate-900 border border-hairline dark:border-slate-800 text-ink dark:text-slate-100 text-xs font-medium animate-in slide-in-from-bottom-3 duration-200"
+        >
+          {toastMessage.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+          ) : toastMessage.type === 'error' ? (
+            <AlertTriangle className="w-4 h-4 text-rose-500 flex-shrink-0" />
+          ) : (
+            <Info className="w-4 h-4 text-blue-500 flex-shrink-0" />
+          )}
+          <span>{toastMessage.text}</span>
+          <button
+            type="button"
+            onClick={clearToast}
+            className="ml-2 p-1 text-ink-mute hover:text-ink dark:hover:text-white rounded"
+            title="Dismiss notification"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </aside>
+      )}
 
       {/* Vercel Web Analytics & Speed Insights */}
       <Analytics />

@@ -1,51 +1,86 @@
-import { TaskItem, DayOfWeek } from '../types/schedule';
+import { TaskItem, DayOfWeek, DayKey } from '../types/schedule';
 import { TaskSchema } from './schemaValidation';
 import { parseTimeToMinutes } from './timeMath';
 
-/**
- * Standardized system prompt template to convert user routines or notes
- * into structured JSON matching the application's schedule schema.
- */
-export const AI_SCHEDULE_PROMPT_TEMPLATE = `You are an expert schedule assistant for the Timetable Manager PWA.
-Convert the user's daily plans, routines, or natural language schedule into a valid JSON array matching this exact schema:
+export const ALL_DAYS: DayKey[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+export const WEEKDAYS: DayKey[] = ['mon', 'tue', 'wed', 'thu', 'fri'];
+export const WEEKENDS: DayKey[] = ['sat', 'sun'];
 
+/**
+ * Standardized system prompt template to convert weekly natural language
+ * routines or schedules into structured multi-day JSON.
+ */
+export const AI_SCHEDULE_PROMPT_TEMPLATE = `You are an expert weekly scheduler for the Timetable Manager PWA.
+Convert the user's weekly routine into a single JSON array where tasks specify which days of the week they apply to.
+
+Schema:
 [
   {
-    "id": "ai-task-1",
-    "title": "Deep Work - Coding",
+    "id": "item-1",
+    "days": ["mon", "tue", "wed", "thu", "fri"], // Or "weekdays", "weekends", "all", or specific days
+    "title": "Core Work & Coding",
     "type": "task",
-    "durationMinutes": 90,
+    "durationMinutes": 480,
     "startTime": "09:00",
-    "endTime": "10:30",
+    "endTime": "17:00",
     "priority": "p1",
     "category": "Work",
-    "completed": false
+    "isCompleted": false
   },
   {
-    "id": "ai-task-2",
-    "title": "Morning Coffee & Break",
+    "id": "item-2",
+    "days": ["sat", "sun"],
+    "title": "Weekend Project / Reading",
+    "type": "task",
+    "durationMinutes": 120,
+    "startTime": "11:00",
+    "endTime": "13:00",
+    "priority": "p2",
+    "category": "Learning",
+    "isCompleted": false
+  },
+  {
+    "id": "item-3",
+    "days": ["all"],
+    "title": "Evening Walk & Meditation",
     "type": "rest",
     "durationMinutes": 30,
-    "startTime": "10:30",
-    "endTime": "11:00",
+    "startTime": "21:00",
+    "endTime": "21:30",
     "priority": "p3",
     "category": "Rest",
-    "completed": false
+    "isCompleted": false
   }
 ]
 
 Strict Rules:
-1. Always output ONLY valid JSON inside a single \`\`\`json \`\`\` markdown code fence.
-2. Time format must strictly be 24-hour "HH:mm" (e.g., "09:00", "14:30").
-3. Use type: "task" for actionable tasks, and type: "rest" for breaks, meals, and downtime.
-4. "priority" must be one of: "p1" (Urgent/Deep Work), "p2" (High), "p3" (Medium), "p4" (Low).
-5. For fixed tasks, durationMinutes must equal the minute delta: (endTime - startTime).
-6. Floating tasks (tasks without set hours) must omit startTime and endTime and provide durationMinutes.
-7. Total day duration must fit within 1,440 minutes without overlapping fixed time blocks.`;
+1. Output ONLY a valid JSON array inside a \`\`\`json \`\`\` markdown code fence.
+2. The "days" property accepts:
+   - "all" or "daily" -> Applies Monday through Sunday
+   - "weekdays" -> ["mon", "tue", "wed", "thu", "fri"]
+   - "weekends" -> ["sat", "sun"]
+   - An explicit array of day abbreviations: ["mon", "wed", "fri"]
+3. Format times strictly in 24-hour "HH:mm" (e.g., "09:00", "21:30").
+4. Use type "task" for work, chores, and study; use "rest" for breaks, meals, and walks.
+5. "priority" must be one of: "p1", "p2", "p3", "p4".
+6. Floating tasks without fixed hours must omit startTime/endTime and define durationMinutes.`;
+
+export interface ParseWeeklyScheduleResult {
+  success: boolean;
+  weeklyTasks: Record<DayKey, TaskItem[]>;
+  isMultiDay: boolean;
+  configuredDays: DayKey[];
+  totalTasksCount: number;
+  error?: string;
+  rawCount?: number;
+}
 
 export interface ParseScheduleResult {
   success: boolean;
   data: TaskItem[];
+  isMultiDay?: boolean;
+  configuredDays?: DayKey[];
+  weeklyTasks?: Record<DayKey, TaskItem[]>;
   error?: string;
   rawCount?: number;
 }
@@ -65,18 +100,158 @@ function generateFallbackId(): string {
 }
 
 /**
- * Defensive JSON parser and sanitizer for raw conversational AI outputs.
- * Extracts items matching TaskItem schema, normalizes missing/invalid attributes,
- * handles full backup payloads, and validates through Zod TaskSchema.
+ * Normalizes day keywords ("weekdays", "weekends", "all", "daily", or specific day arrays)
+ * into a verified list of DayKey values.
  */
-export function extractScheduleJsonFromText(
+export function normalizeDayKeywords(
+  daysInput: unknown,
+  fallbackDay: DayKey = 'mon'
+): { days: DayKey[]; isExplicitMultiDay: boolean } {
+  if (daysInput === undefined || daysInput === null || daysInput === '') {
+    return { days: [fallbackDay], isExplicitMultiDay: false };
+  }
+
+  let list: string[] = [];
+  if (Array.isArray(daysInput)) {
+    list = daysInput.map((d) => String(d).toLowerCase().trim());
+  } else if (typeof daysInput === 'string') {
+    list = [daysInput.toLowerCase().trim()];
+  } else {
+    return { days: [fallbackDay], isExplicitMultiDay: false };
+  }
+
+  const resultSet = new Set<DayKey>();
+  let hasMultiDayKeyword = false;
+
+  for (const raw of list) {
+    if (raw === 'all' || raw === 'daily' || raw === 'everyday' || raw === 'every day') {
+      ALL_DAYS.forEach((d) => resultSet.add(d));
+      hasMultiDayKeyword = true;
+    } else if (raw === 'weekdays' || raw === 'weekday') {
+      WEEKDAYS.forEach((d) => resultSet.add(d));
+      hasMultiDayKeyword = true;
+    } else if (raw === 'weekends' || raw === 'weekend') {
+      WEEKENDS.forEach((d) => resultSet.add(d));
+      hasMultiDayKeyword = true;
+    } else {
+      const prefix = raw.substring(0, 3) as DayKey;
+      if (ALL_DAYS.includes(prefix)) {
+        resultSet.add(prefix);
+      }
+    }
+  }
+
+  const resultDays = ALL_DAYS.filter((d) => resultSet.has(d));
+  if (resultDays.length === 0) {
+    return { days: [fallbackDay], isExplicitMultiDay: false };
+  }
+
+  return {
+    days: resultDays,
+    isExplicitMultiDay: hasMultiDayKeyword || resultDays.length > 1,
+  };
+}
+
+/**
+ * Normalizes an individual raw task candidate against the TaskSchema.
+ */
+function normalizeRawTask(raw: any, index: number): { task?: Record<string, any>; error?: string } {
+  if (!raw || typeof raw !== 'object') {
+    return { error: `Item at index ${index} is not a valid object.` };
+  }
+
+  const id = typeof raw.id === 'string' && raw.id.trim() ? raw.id.trim() : generateFallbackId();
+  const title = typeof raw.title === 'string' && raw.title.trim() ? raw.title.trim() : `Task ${index + 1}`;
+
+  let type = raw.type;
+  if (typeof type === 'string') {
+    type = type.toLowerCase().trim();
+  }
+  if (type !== 'task' && type !== 'rest' && type !== 'break') {
+    type = 'task';
+  }
+
+  const startTime = typeof raw.startTime === 'string' && raw.startTime.trim() ? raw.startTime.trim() : undefined;
+  const endTime = typeof raw.endTime === 'string' && raw.endTime.trim() ? raw.endTime.trim() : undefined;
+
+  let durationMinutes = Number(raw.durationMinutes);
+  if (isNaN(durationMinutes) || durationMinutes <= 0) {
+    if (startTime && endTime) {
+      const startMins = parseTimeToMinutes(startTime);
+      const endMins = parseTimeToMinutes(endTime);
+      const delta = endMins - startMins;
+      durationMinutes = delta > 0 ? delta : 30;
+    } else {
+      durationMinutes = 30;
+    }
+  }
+  durationMinutes = Math.max(1, Math.round(durationMinutes));
+
+  let priority = typeof raw.priority === 'string' ? raw.priority.toLowerCase().trim() : undefined;
+  if (!priority || !['p1', 'p2', 'p3', 'p4', 'high', 'medium', 'low'].includes(priority)) {
+    priority = 'p3';
+  }
+
+  const defaultCategory = type === 'rest' || type === 'break' ? 'Rest' : 'General';
+  const category = typeof raw.category === 'string' && raw.category.trim() ? raw.category.trim() : defaultCategory;
+
+  const isFloating = !startTime || !endTime || Boolean(raw.isFloating);
+  const now = Date.now();
+  const isCompleted = Boolean(raw.isCompleted ?? raw.completed ?? false);
+
+  const candidate: Record<string, any> = {
+    ...raw,
+    id,
+    title,
+    type,
+    durationMinutes,
+    startTime: isFloating ? undefined : startTime,
+    endTime: isFloating ? undefined : endTime,
+    priority,
+    category,
+    completed: isCompleted,
+    isCompleted,
+    isFloating,
+    createdAt: typeof raw.createdAt === 'number' ? raw.createdAt : now,
+    updatedAt: typeof raw.updatedAt === 'number' ? raw.updatedAt : now,
+  };
+
+  const parseRes = TaskSchema.safeParse(candidate);
+  if (!parseRes.success) {
+    const issueMsgs = parseRes.error.issues.map((issue) => issue.message).join(', ');
+    return { error: `Item "${title}": ${issueMsgs}` };
+  }
+
+  return { task: candidate };
+}
+
+/**
+ * Extracts and unpacks multi-day or single-day schedules from raw text.
+ * Distributes tasks into Record<DayKey, TaskItem[]> with unique day-specific IDs.
+ */
+export function extractWeeklyScheduleFromText(
   rawText: string,
-  targetDay?: DayOfWeek | string
-): ParseScheduleResult {
+  activeDay: DayKey | string = 'mon'
+): ParseWeeklyScheduleResult {
+  const fallbackDay = (activeDay?.toLowerCase() || 'mon') as DayKey;
+
+  const emptyWeeklyTasks: Record<DayKey, TaskItem[]> = {
+    mon: [],
+    tue: [],
+    wed: [],
+    thu: [],
+    fri: [],
+    sat: [],
+    sun: [],
+  };
+
   if (!rawText || !rawText.trim()) {
     return {
       success: false,
-      data: [],
+      weeklyTasks: emptyWeeklyTasks,
+      isMultiDay: false,
+      configuredDays: [],
+      totalTasksCount: 0,
       error: 'Input text is empty. Please paste the AI schedule output.',
     };
   }
@@ -95,7 +270,6 @@ export function extractScheduleJsonFromText(
   try {
     parsedJson = JSON.parse(jsonCandidate);
   } catch {
-    // Attempt to locate outermost JSON array brackets [ ... ]
     const firstBracket = jsonCandidate.indexOf('[');
     const lastBracket = jsonCandidate.lastIndexOf(']');
     if (firstBracket !== -1 && lastBracket > firstBracket) {
@@ -103,11 +277,10 @@ export function extractScheduleJsonFromText(
         const arraySub = jsonCandidate.substring(firstBracket, lastBracket + 1);
         parsedJson = JSON.parse(arraySub);
       } catch {
-        // Fall through to object attempt
+        // Fall through
       }
     }
 
-    // If still not parsed, attempt to locate outermost JSON object braces { ... }
     if (!parsedJson) {
       const firstBrace = jsonCandidate.indexOf('{');
       const lastBrace = jsonCandidate.lastIndexOf('}');
@@ -116,7 +289,7 @@ export function extractScheduleJsonFromText(
           const objSub = jsonCandidate.substring(firstBrace, lastBrace + 1);
           parsedJson = JSON.parse(objSub);
         } catch {
-          // Both array and object bracket extraction failed
+          // Failed
         }
       }
     }
@@ -125,168 +298,216 @@ export function extractScheduleJsonFromText(
   if (!parsedJson) {
     return {
       success: false,
-      data: [],
-      error: 'Failed to extract valid JSON from the provided text. Ensure the AI output contains a JSON schedule array.',
+      weeklyTasks: emptyWeeklyTasks,
+      isMultiDay: false,
+      configuredDays: [],
+      totalTasksCount: 0,
+      error: 'Failed to extract valid JSON from the provided text. Ensure the AI output contains a valid JSON array or object.',
     };
   }
 
-  // 3. Extract items array: handles standard arrays, full backup payloads, and object wrappers
-  let rawItems: any[] = [];
+  // 3. Extract items and their assigned days
+  interface TaskQueueItem {
+    raw: any;
+    days: DayKey[];
+    isExplicitMultiDay: boolean;
+  }
+  const taskQueue: TaskQueueItem[] = [];
+  let isMultiDayDetected = false;
+  let totalRawCount = 0;
 
   if (Array.isArray(parsedJson)) {
-    rawItems = parsedJson;
+    totalRawCount = parsedJson.length;
+    for (const item of parsedJson) {
+      const { days, isExplicitMultiDay } = normalizeDayKeywords(item?.days, fallbackDay);
+      if (isExplicitMultiDay) {
+        isMultiDayDetected = true;
+      }
+      taskQueue.push({ raw: item, days, isExplicitMultiDay });
+    }
   } else if (parsedJson && typeof parsedJson === 'object') {
     const obj = parsedJson as Record<string, any>;
 
-    // Case: Full backup payload with daySchedules or days
+    // Case A: Full backup payload with daySchedules or days
     const schedulesMap = obj.daySchedules || obj.days;
     if (schedulesMap && typeof schedulesMap === 'object') {
-      const dayKey = (targetDay?.toLowerCase() || 'mon') as DayOfWeek;
-      const targetSchedule = schedulesMap[dayKey];
-
-      if (targetSchedule && Array.isArray(targetSchedule.customItems)) {
-        rawItems = targetSchedule.customItems;
-      } else {
-        // Search for any day that contains customItems or items
-        const dayKeys = Object.keys(schedulesMap);
-        let foundItems: any[] | null = null;
-        for (const k of dayKeys) {
-          const cand = schedulesMap[k];
-          if (cand && Array.isArray(cand.customItems) && cand.customItems.length > 0) {
-            foundItems = cand.customItems;
-            break;
-          }
-          if (cand && Array.isArray(cand.items) && cand.items.length > 0) {
-            foundItems = cand.items;
-            break;
-          }
-        }
-        if (foundItems) {
-          rawItems = foundItems;
-        } else if (targetSchedule && Array.isArray(targetSchedule.items)) {
-          rawItems = targetSchedule.items;
+      const dayKeys = Object.keys(schedulesMap);
+      if (dayKeys.length > 1) {
+        isMultiDayDetected = true;
+      }
+      for (const k of dayKeys) {
+        const dKey = k.toLowerCase().substring(0, 3) as DayKey;
+        const validDay = ALL_DAYS.includes(dKey) ? dKey : fallbackDay;
+        const sched = schedulesMap[k];
+        const items = Array.isArray(sched?.customItems)
+          ? sched.customItems
+          : Array.isArray(sched?.items)
+          ? sched.items
+          : [];
+        totalRawCount += items.length;
+        for (const item of items) {
+          taskQueue.push({ raw: item, days: [validDay], isExplicitMultiDay: false });
         }
       }
-    } else if (Array.isArray(obj.customItems)) {
-      rawItems = obj.customItems;
-    } else if (Array.isArray(obj.tasks)) {
-      rawItems = obj.tasks;
-    } else if (Array.isArray(obj.items)) {
-      rawItems = obj.items;
-    } else if (Array.isArray(obj.schedule)) {
-      rawItems = obj.schedule;
-    } else if (obj.title && typeof obj.title === 'string') {
-      // Single task object pasted
-      rawItems = [obj];
+    } else {
+      // Case B: Grouped dictionary format: { "weekdays": [...], "weekends": [...] } or { "mon": [...] }
+      const recognizedKeys = Object.keys(obj).filter((key) => {
+        const k = key.toLowerCase().trim();
+        return (
+          Array.isArray(obj[key]) &&
+          (ALL_DAYS.includes(k.substring(0, 3) as DayKey) ||
+            ['weekdays', 'weekday', 'weekends', 'weekend', 'all', 'daily'].includes(k))
+        );
+      });
+
+      if (recognizedKeys.length > 0) {
+        isMultiDayDetected = true;
+        for (const groupKey of recognizedKeys) {
+          const items = obj[groupKey] as any[];
+          totalRawCount += items.length;
+          const { days } = normalizeDayKeywords(groupKey, fallbackDay);
+          for (const item of items) {
+            taskQueue.push({ raw: item, days, isExplicitMultiDay: true });
+          }
+        }
+      } else if (Array.isArray(obj.tasks) || Array.isArray(obj.items) || Array.isArray(obj.customItems) || Array.isArray(obj.schedule)) {
+        // Case C: Object wrapper { tasks: [...] }
+        const items = obj.tasks || obj.items || obj.customItems || obj.schedule;
+        totalRawCount = items.length;
+        for (const item of items) {
+          const { days, isExplicitMultiDay } = normalizeDayKeywords(item?.days, fallbackDay);
+          if (isExplicitMultiDay) isMultiDayDetected = true;
+          taskQueue.push({ raw: item, days, isExplicitMultiDay });
+        }
+      } else if (obj.title && typeof obj.title === 'string') {
+        // Case D: Single task object
+        totalRawCount = 1;
+        const { days, isExplicitMultiDay } = normalizeDayKeywords(obj.days, fallbackDay);
+        if (isExplicitMultiDay) isMultiDayDetected = true;
+        taskQueue.push({ raw: obj, days, isExplicitMultiDay });
+      }
     }
   }
 
-  if (!Array.isArray(rawItems) || rawItems.length === 0) {
+  if (taskQueue.length === 0) {
     return {
       success: false,
-      data: [],
+      weeklyTasks: emptyWeeklyTasks,
+      isMultiDay: false,
+      configuredDays: [],
+      totalTasksCount: 0,
       error: 'No schedule items found in the extracted JSON payload.',
+      rawCount: totalRawCount,
     };
   }
 
-  // 4. Normalize and validate each item against TaskSchema
-  const validatedTasks: TaskItem[] = [];
-  const errors: string[] = [];
+  // 4. Distribute into daily buckets and ensure unique day-specific IDs
+  const weeklyTasks: Record<DayKey, TaskItem[]> = {
+    mon: [],
+    tue: [],
+    wed: [],
+    thu: [],
+    fri: [],
+    sat: [],
+    sun: [],
+  };
 
-  for (let i = 0; i < rawItems.length; i++) {
-    const raw = rawItems[i];
-    if (!raw || typeof raw !== 'object') {
-      errors.push(`Item at index ${i} is not a valid object.`);
+  const validationErrors: string[] = [];
+  let totalValidItemsCount = 0;
+
+  for (let idx = 0; idx < taskQueue.length; idx++) {
+    const { raw, days } = taskQueue[idx];
+    const norm = normalizeRawTask(raw, idx);
+
+    if (norm.error || !norm.task) {
+      validationErrors.push(norm.error || `Task at index ${idx} failed validation.`);
       continue;
     }
 
-    // Sanitize ID
-    const id = typeof raw.id === 'string' && raw.id.trim() ? raw.id.trim() : generateFallbackId();
+    const baseTask = norm.task;
+    const baseId = baseTask.id;
 
-    // Sanitize title
-    const title = typeof raw.title === 'string' && raw.title.trim() ? raw.title.trim() : `Task ${i + 1}`;
+    for (const day of days) {
+      // Generate day-specific ID when a task spans multiple days so IDs remain unique across days
+      const daySpecificId = days.length > 1 ? `${baseId}-${day}` : baseId;
 
-    // Normalize type (default 'task', allow 'rest' / 'break')
-    let type = raw.type;
-    if (typeof type === 'string') {
-      type = type.toLowerCase().trim();
-    }
-    if (type !== 'task' && type !== 'rest' && type !== 'break') {
-      type = 'task';
-    }
+      const dayTask: TaskItem = {
+        ...(baseTask as TaskItem),
+        id: daySpecificId,
+      };
 
-    // Times & duration calculation
-    let startTime = typeof raw.startTime === 'string' && raw.startTime.trim() ? raw.startTime.trim() : undefined;
-    let endTime = typeof raw.endTime === 'string' && raw.endTime.trim() ? raw.endTime.trim() : undefined;
-
-    let durationMinutes = Number(raw.durationMinutes);
-    if (isNaN(durationMinutes) || durationMinutes <= 0) {
-      if (startTime && endTime) {
-        const startMins = parseTimeToMinutes(startTime);
-        const endMins = parseTimeToMinutes(endTime);
-        const delta = endMins - startMins;
-        durationMinutes = delta > 0 ? delta : 30;
-      } else {
-        durationMinutes = 30;
-      }
-    }
-    // Clamp to positive integer
-    durationMinutes = Math.max(1, Math.round(durationMinutes));
-
-    // Priority normalization
-    let priority = typeof raw.priority === 'string' ? raw.priority.toLowerCase().trim() : undefined;
-    if (!priority || !['p1', 'p2', 'p3', 'p4', 'high', 'medium', 'low'].includes(priority)) {
-      priority = 'p3';
-    }
-
-    // Category normalization
-    const defaultCategory = type === 'rest' || type === 'break' ? 'Rest' : 'General';
-    const category = typeof raw.category === 'string' && raw.category.trim() ? raw.category.trim() : defaultCategory;
-
-    const isFloating = !startTime || !endTime || Boolean(raw.isFloating);
-    const now = Date.now();
-    const isCompleted = Boolean(raw.isCompleted ?? raw.completed ?? false);
-
-    const candidateItem: Record<string, any> = {
-      ...raw,
-      id,
-      title,
-      type,
-      durationMinutes,
-      startTime: isFloating ? undefined : startTime,
-      endTime: isFloating ? undefined : endTime,
-      priority,
-      category,
-      completed: isCompleted,
-      isCompleted,
-      isFloating,
-      createdAt: typeof raw.createdAt === 'number' ? raw.createdAt : now,
-      updatedAt: typeof raw.updatedAt === 'number' ? raw.updatedAt : now,
-    };
-
-    // Validate through Zod TaskSchema
-    const parseRes = TaskSchema.safeParse(candidateItem);
-    if (!parseRes.success) {
-      const issueMsgs = parseRes.error.issues.map((issue) => issue.message).join(', ');
-      errors.push(`Item "${title}": ${issueMsgs}`);
-    } else {
-      validatedTasks.push(candidateItem as TaskItem);
+      weeklyTasks[day].push(dayTask);
+      totalValidItemsCount++;
     }
   }
 
-  if (validatedTasks.length === 0) {
+  const configuredDays = ALL_DAYS.filter((d) => weeklyTasks[d].length > 0);
+
+  if (configuredDays.length > 1) {
+    isMultiDayDetected = true;
+  }
+
+  if (totalValidItemsCount === 0) {
     return {
       success: false,
-      data: [],
-      error: errors.length > 0 ? errors.join('; ') : 'All extracted items failed validation.',
-      rawCount: rawItems.length,
+      weeklyTasks: emptyWeeklyTasks,
+      isMultiDay: false,
+      configuredDays: [],
+      totalTasksCount: 0,
+      error: validationErrors.length > 0 ? validationErrors.join('; ') : 'All extracted items failed validation.',
+      rawCount: totalRawCount,
     };
   }
 
   return {
     success: true,
-    data: validatedTasks,
-    rawCount: rawItems.length,
+    weeklyTasks,
+    isMultiDay: isMultiDayDetected,
+    configuredDays,
+    totalTasksCount: totalValidItemsCount,
+    rawCount: totalRawCount,
   };
 }
 
+/**
+ * Defensive JSON parser and sanitizer for raw conversational AI outputs.
+ * Delegates to extractWeeklyScheduleFromText for seamless multi-day support.
+ */
+export function extractScheduleJsonFromText(
+  rawText: string,
+  targetDay?: DayOfWeek | string
+): ParseScheduleResult {
+  const chosenDay = (targetDay?.toLowerCase() || 'mon') as DayKey;
+  const weeklyResult = extractWeeklyScheduleFromText(rawText, chosenDay);
+
+  if (!weeklyResult.success) {
+    return {
+      success: false,
+      data: [],
+      error: weeklyResult.error,
+      rawCount: weeklyResult.rawCount,
+    };
+  }
+
+  const targetDayTasks = weeklyResult.weeklyTasks[chosenDay];
+
+  // If the target day has tasks, return those; if not multi-day and another day has tasks, return that day's tasks
+  let dataToReturn: TaskItem[] = targetDayTasks;
+  if (dataToReturn.length === 0 && !weeklyResult.isMultiDay) {
+    for (const d of ALL_DAYS) {
+      if (weeklyResult.weeklyTasks[d].length > 0) {
+        dataToReturn = weeklyResult.weeklyTasks[d];
+        break;
+      }
+    }
+  }
+
+  return {
+    success: true,
+    data: dataToReturn,
+    isMultiDay: weeklyResult.isMultiDay,
+    configuredDays: weeklyResult.configuredDays,
+    weeklyTasks: weeklyResult.weeklyTasks,
+    rawCount: weeklyResult.rawCount,
+  };
+}

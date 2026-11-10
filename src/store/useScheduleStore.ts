@@ -49,6 +49,8 @@ interface ScheduleState {
   toggleAiModal: () => void;
   replaceDayCustomItems: (day: DayKey, items: TaskItem[]) => Promise<void>;
   appendDayCustomItems: (day: DayKey, items: TaskItem[]) => Promise<void>;
+  replaceWeeklyCustomItems: (weeklyTasks: Partial<Record<DayKey, TaskItem[]>>) => Promise<void>;
+  appendWeeklyCustomItems: (weeklyTasks: Partial<Record<DayKey, TaskItem[]>>) => Promise<void>;
 
   // Global Toast State
   toastMessage: { text: string; type: 'success' | 'error' | 'info' } | null;
@@ -587,6 +589,42 @@ export const useScheduleStore = create<ScheduleState>((setStore, getStore) => ({
         customItems: [...currentSchedule.customItems, ...items],
       },
     };
+
+    setStore({ daySchedules: updatedSchedules });
+    await saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay, state.activeView);
+  },
+
+  replaceWeeklyCustomItems: async (weeklyTasks: Partial<Record<DayKey, TaskItem[]>>) => {
+    const state = getStore();
+    const updatedSchedules = { ...state.daySchedules };
+
+    for (const [dayKey, items] of Object.entries(weeklyTasks)) {
+      const day = dayKey as DayKey;
+      if (updatedSchedules[day] && Array.isArray(items)) {
+        updatedSchedules[day] = {
+          ...updatedSchedules[day],
+          customItems: items,
+        };
+      }
+    }
+
+    setStore({ daySchedules: updatedSchedules });
+    await saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay, state.activeView);
+  },
+
+  appendWeeklyCustomItems: async (weeklyTasks: Partial<Record<DayKey, TaskItem[]>>) => {
+    const state = getStore();
+    const updatedSchedules = { ...state.daySchedules };
+
+    for (const [dayKey, items] of Object.entries(weeklyTasks)) {
+      const day = dayKey as DayKey;
+      if (updatedSchedules[day] && Array.isArray(items)) {
+        updatedSchedules[day] = {
+          ...updatedSchedules[day],
+          customItems: [...updatedSchedules[day].customItems, ...items],
+        };
+      }
+    }
 
     setStore({ daySchedules: updatedSchedules });
     await saveToStorage(updatedSchedules, state.masterRoutines, state.selectedDay, state.activeView);
